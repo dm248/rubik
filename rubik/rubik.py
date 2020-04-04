@@ -505,8 +505,9 @@ class RubikCube():
                   "DFLUBR", "DLBURF", "DBRUFL", "DRFULB"    #D->L, then FLBR rotate
                 )
 
-   rigid_rotation_move_str_map = [{}]*24
+   rigid_rotation_move_str_map = [None]*24
    for rot in range(24):
+      rigid_rotation_move_str_map[rot] = {}
       remap = rigid_rotation_mapped_moves
       for i in range(6):
          rigid_rotation_move_str_map[rot][remap[0][i]] = remap[rot][i]
@@ -515,7 +516,7 @@ class RubikCube():
    def rotateMoveString(str, rot_idx):
       if rot_idx == 0:
          return str
-      remap = rigit_rotation_move_str_map(rot_idx);
+      remap = RubikCube.rigid_rotation_move_str_map[rot_idx];
       return "".join( [ remap.get(c)   if remap.get(c) != None  else c   for c in str] )
 
 
@@ -949,16 +950,27 @@ def analyze(str, count = 1):
    print(cube.getEdgePermutation())
    print(cube.getCornerPermutation())
   
-
-analyze("L R' U2 L' R B2")  # edge cycle
-analyze("L R' F L R' D L R' B L R' U L R' F' L R' D' L R' B' L R' U'")  # edge flip
-analyze("D R D' R' F", 3)     # corner swap
+# edge cycle 0,2,8->8,0,2 ( 
+analyze("L R' U2 L' R B2")
+# flip orientations of edges 1,3 (opposite on same face)
+analyze("L R' F L R' D L R' B L R' U L R' F' L R' D' L R' B' L R' U'")
+# corner swap + some edge transformations
+analyze("D R D' R' F", 3)     
 
 #
 # using Rubik Cube solver site:
 #
-analyze("B U B D' B' U' B U' R2 U L2 U' R2 U L2 D B2")   # corner twist
+# 2,6,7->7,2,6
 analyze("U' F D' B2 D F' D' B2 U D")    #corner cycle
+
+
+# twist corners 0 and 1 (corners on same edge)
+analyze("D R D L' D' R' D R' F2 R B2 R' F2 R B2 L D2")
+# flip orientations of edges 0 and 1 (neighbors on same face)
+analyze("R U F R2 F' R' U F2 R2 U2 F2 U2 R2 F U2 F")
+
+for i in range(24):
+   analyze(RubikCube.rotateMoveString("U' F D' B2 D F' D' B2 U D", i))
 
 exit(0)
 
