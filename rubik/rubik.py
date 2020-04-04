@@ -16,13 +16,16 @@
 #          40 (Back center)  = ORANGE
 #          49 (Down center)  = WHITE
 #
+#
+# state geometry:
+#
 #               ----------------
-#               | 0  | 1  | 2  |
-#               ----------------
+#               | 0  | 1  | 2  | 
+#               ----------------   UP
 #               | 3  | 4  | 5  |
 #               ----------------
 #               | 6  | 7  | 8  |
-#               ----------------
+#   LEFT        ----------------    RIGHT          BACK
 #-------------------------------------------------------------
 #| 9  | 10 | 11 | 18 | 19 | 20 | 27 | 28 | 29 | 36 | 37 | 38 |
 #-------------------------------------------------------------
@@ -33,14 +36,23 @@
 #               ----------------
 #               | 45 | 46 | 47 |
 #               ----------------
-#               | 48 | 49 | 50 |
+#               | 48 | 49 | 50 |  DOWN
 #               ----------------
 #               | 51 | 52 | 53 |
 #               ----------------
-
+#
+#
+# corners:    0-1           edges:  +0+  
+#             | |  UP               3 1
+#           0-3-2-                +3+2+1+-
+#           | | |  FRONT          4 5 6 7  
+#           4-7-6-                +b+a+9+-       a = 10, b = 11
+#             | |  DOWN             b 9
+#             4-5                   +8+
+#
+#
 
 import sys, numpy as np
-
 
 
 class RubikCube():
@@ -67,17 +79,17 @@ class RubikCube():
                     }
 
    int2color_map_FACES = {  1: 'Y',  2: 'Y',  3: 'Y',  4: 'Y',  5: 'Y',
-                      6: 'Y',  7: 'Y',  8: 'Y',  9: 'Y', 10: 'B',
-                     11: 'B', 12: 'B', 13: 'B', 14: 'B', 15: 'B',
-                     16: 'B', 17: 'B', 18: 'B', 19: 'R', 20: 'R',
-                     21: 'R', 22: 'R', 23: 'R', 24: 'R', 25: 'R',
-                     26: 'R', 27: 'R', 28: 'G', 29: 'G', 30: 'G',
-                     31: 'G', 32: 'G', 33: 'G', 34: 'G', 35: 'G',
-                     36: 'G', 37: 'O', 38: 'O', 39: 'O', 40: 'O',
-                     41: 'O', 42: 'O', 43: 'O', 44: 'O', 45: 'O',
-                     46: 'W', 47: 'W', 48: 'W', 49: 'W', 50: 'W',
-                     51: 'W', 52: 'W', 53: 'W', 54: 'W'
-                  }
+                            6: 'Y',  7: 'Y',  8: 'Y',  9: 'Y', 10: 'B',
+                           11: 'B', 12: 'B', 13: 'B', 14: 'B', 15: 'B',
+                           16: 'B', 17: 'B', 18: 'B', 19: 'R', 20: 'R',
+                           21: 'R', 22: 'R', 23: 'R', 24: 'R', 25: 'R',
+                           26: 'R', 27: 'R', 28: 'G', 29: 'G', 30: 'G',
+                           31: 'G', 32: 'G', 33: 'G', 34: 'G', 35: 'G',
+                           36: 'G', 37: 'O', 38: 'O', 39: 'O', 40: 'O',
+                           41: 'O', 42: 'O', 43: 'O', 44: 'O', 45: 'O',
+                           46: 'W', 47: 'W', 48: 'W', 49: 'W', 50: 'W',
+                           51: 'W', 52: 'W', 53: 'W', 54: 'W'
+                        }
    
    int2color_map = {  1: 'a',  2: 'b',  3: 'c',  4: 'd',  5: 'e',
                       6: 'f',  7: 'g',  8: 'h',  9: 'i', 10: 'j',
@@ -109,16 +121,16 @@ class RubikCube():
 
    center_indices = (  4, 13, 22, 31, 40, 49 );   # U, L, F, R, B, D
 
+   edge_indices = ( ( 1, 37), ( 5, 28), ( 7, 19), ( 3, 10),   #UB, UR, UF, UL
+                    (12, 41), (14, 21), (23, 30), (32, 39),   #LB, LF, RF, RB
+                    (43, 52), (34, 50), (25, 46), (16, 48)    #DB, DR, DF, DL
+                  )
+
    corner_indices = ( ( 0,  9, 38),  ( 2, 36, 29),      # UBL, UBR
                       ( 8, 27, 20),  ( 6, 18, 11),      # UFR, UFL
                       (51, 44, 15),  (53, 35, 42),      # DBL, DBR
                       (47, 26, 33),  (45, 17, 24)       # DFR, DFL
                     )
-
-   edge_indices = ( ( 1, 37), ( 5, 28), ( 7, 19), ( 3, 10),   #UB, UR, UF, UL
-                    (12, 41), (14, 21), (23, 30), (32, 39),   #LB, LF, RF, RB
-                    (43, 52), (34, 50), (25, 46), (16, 48)    #DB, DR, DF, DL
-                  )
 
    color2center_map = {}
    for i in center_indices:   color2center_map[idx2face(i)] = i
@@ -139,6 +151,20 @@ class RubikCube():
       color2corner_map[(fj,fk,fi)] = (j,k,i)
       color2corner_map[(fk,fi,fj)] = (k,i,j)
       color2corner_map[(fk,fj,fi)] = (k,j,i)
+
+   edge_permutation_map = {}
+   for idx, (i,j) in enumerate(edge_indices):
+      edge_permutation_map[(i,j)] = (idx, 0)
+      edge_permutation_map[(j,i)] = (idx, 1)
+
+   corner_permutation_map = {}
+   for idx, (i,j,k) in enumerate(corner_indices): # idx 0: UBL, 1: UBR, 2: UFR, 3: UFL, 4:DBL, 5: DBR, 6: DFR, 7: DFL
+      corner_permutation_map[(i,j,k)] = (idx, 0)
+      corner_permutation_map[(j,k,i)] = (idx, 1)
+      corner_permutation_map[(k,i,j)] = (idx, 2)
+      corner_permutation_map[(k,j,i)] = (idx, 3)  # 3-5 are mirrorred, so impossible on normal cube
+      corner_permutation_map[(j,i,k)] = (idx, 4)
+      corner_permutation_map[(i,k,j)] = (idx, 5)
 
 
    ####
@@ -301,7 +327,7 @@ class RubikCube():
 
    # down
  
-   def moveD(self, dir = 1): #clockwise turn of DOWN face (around #4)
+   def moveD(self, dir = 1): #clockwise turn of DOWN face (around #49)
       # face
       self.__rotateFace(5, dir)
       # neighbors: 15,16,17|24,25,26|33,34,35|42,43,44 -> rotate by 3 for CW
@@ -325,19 +351,30 @@ class RubikCube():
                11: moveL2, 12: moveR2, 13: moveF2, 14: moveB2, 15: moveU2, 16: moveD2  # double moves
               }
 
-   def move(self, sequence):   # apply sequence of moves
-      for code in sequence:
-         if code == 0:
-            continue
-         m = self.int2move[code]   # fetch move
-         m(self)                   # apply it
+   def move(self, sequence, count = 1):   # apply sequence of moves
+      for _ in range(count):
+         for code in sequence:
+            if code == 0:
+               continue
+            m = self.int2move[code]   # fetch move
+            m(self)                   # apply it
 
+   def stringMove(self, moves: str, count = 1):
+      sequence = RubikCube.string2moves(moves)
+      self.move(sequence, count)
+ 
    def invertMoves(sequence):   # invert move sequence
       return [ c if c > 10  else -c   for c in sequence[::-1] ]
 
    def invMove(self, sequence):  # apply inverse of moves
       self.move(RubikCube.invertMoves(sequence))
 
+   # whether two move sequences are equivalent
+   def areEqualMoves(seq1, seq2):
+      cube = RubikCube()
+      cube.move(seq1)
+      cube.invMove(seq2)
+      return cube.isReset()
 
    # parsing sequences
    
@@ -411,6 +448,24 @@ class RubikCube():
       cube.move(sequence)
       return cube.getState()
 
+   # read off edge permutations
+   def getEdgePermutation(self):
+      state = self.state
+      res = []
+      for (i,j) in RubikCube.edge_indices:
+         pattern = (state[i] - 1, state[j] - 1)
+         res.append(RubikCube.edge_permutation_map[pattern])
+      return res
+
+   # read off corner permutations
+   def getCornerPermutation(self):
+      state = self.state
+      res = []
+      for (i,j,k) in RubikCube.corner_indices:
+         pattern = (state[i] - 1, state[j] - 1, state[k] - 1)
+         res.append(RubikCube.corner_permutation_map[pattern])
+      return res
+
    #
    # group stuff
    #
@@ -430,12 +485,38 @@ class RubikCube():
          cube.permute(perm)
          order += 1
 
-   # whether two move sequences are equivalent
-   def areEqualMoves(seq1, seq2):
-      cube = RubikCube()
-      cube.move(seq1)
-      cube.invMove(seq2)
-      return cube.isReset()
+
+   # rigid rotations
+   #
+   # 24 configurations (e.g., 8 positions for a given corner * 3 rotations about that corner
+   #                    or, 6 positions for a given face * 4 rotations about the normal to that face)
+   #
+   # -> choose 6x4, so index = (position of originally "L" face) * 4 + (CW rotation / 90 degrees)
+
+   # LFURBD relabelings for rotated configurations
+   # - the LFU normals form a righthanded system
+   # - normals for R,B,D are always opposite to L,F,U
+   rigid_rotation_mapped_moves = (
+                  "LFURBD", "LUBRDF", "LBDRFU", "LDFRUB",   #L in place, FUBD rotate
+                  "BLUFRD", "BURFDL", "BRDFLU", "BDLFUR",   #B->L, then LURD rotate
+                  "RBULFD", "RUFLDB", "RFDLBU", "RDBLUF",   #R->L, then BUFD rotate
+                  "FRUBLD", "RUFLDB", "RFDLBU", "RDBLUF",   #F->L, then BUFD rotate
+                  "UFRDBL", "URBDLF", "UBLDFR", "ULFDRB",   #U->L, then FRBL rotate
+                  "DFLUBR", "DLBURF", "DBRUFL", "DRFULB"    #D->L, then FLBR rotate
+                )
+
+   rigid_rotation_move_str_map = [{}]*24
+   for rot in range(24):
+      remap = rigid_rotation_mapped_moves
+      for i in range(6):
+         rigid_rotation_move_str_map[rot][remap[0][i]] = remap[rot][i]
+   rigid_rotation_move_str_map = tuple(rigid_rotation_move_str_map)
+
+   def rotateMoveString(str, rot_idx):
+      if rot_idx == 0:
+         return str
+      remap = rigit_rotation_move_str_map(rot_idx);
+      return "".join( [ remap.get(c)   if remap.get(c) != None  else c   for c in str] )
 
 
 #
@@ -490,6 +571,9 @@ def TESTsuite(facesonly = False):
    cube.reset()
    cube.permute(perm)
    print(cube.isInState(state))
+   cube.move([1, 2, 1, 2, 1, 2])
+   print("edge permutation:", cube.getEdgePermutation())
+   print("corner permutation:", cube.getCornerPermutation())
 
    # state to/from string
    print("to/from string:")
@@ -506,7 +590,7 @@ def TESTsuite(facesonly = False):
    print(cube.isInState(state))
 
   
-TESTsuite(False)
+#TESTsuite(False)
 #TESTsuite(True)
 
 
@@ -779,17 +863,102 @@ seq_w = tuple(RubikCube.string2moves(wStr))
 cube = RubikCube()
 print("#w_a:")
 cube.move(seq_wa)
+state_wa = cube.getState()
 cube.print()
 print("#w:")
 cube.reset()
 cube.move(seq_w)
+state_w = cube.getState()
 cube.print()
 print("#w_b:")
 cube.reset()
 cube.move(seq_wb)
+state_wb = cube.getState()
 cube.print()
 
 
+def edgeAndCornerPerms(state):
+   cube = RubikCube()
+   cube.setState(state)
+   edges = cube.getEdgePermutation()
+   corners = cube.getCornerPermutation()
+   print(edges)
+   print(corners)
+   return edges, corners  
+
+# compare edge and corner permutations
+print("#w_a - edge and corner perms:")
+wa_edges, wa_corners = edgeAndCornerPerms(state_wa)
+print("#w - edge and corner perms:")
+w_edges, w_corners = edgeAndCornerPerms(state_w)
+print("#w_b - edge and corner perms:")
+wb_edges, wb_corners = edgeAndCornerPerms(state_wb)
+
+# get corner perms of in a from wa, w
+corn_wa = [p[0]   for p in wa_corners]
+corn_w  = [p[0]   for p in w_corners]
+print(corn_wa, corn_w)
+
+import itertools
+
+# consider all corner permutations for 'a'
+# and check whether w_a = a^(-1) w a, i.e., a * w_a = w * a
+print("#viable corner perms for a:")
+for p in itertools.permutations(range(8)):
+   # p[i] is the new corner at 'i'  (so it moves from p[i] -> i)
+   # construct w * a
+   st_w_a = [corn_w[p[i]] for i in range(8)]
+   # construct a^-1 on 0...7
+   st_ainv = [p[i] for i in range(8)]
+   st_ainv_wa = [st_ainv[corn_wa[i]] for i in range(8)]
+   if st_ainv_wa == st_w_a:
+      # count swaps
+      p2 = list(p)
+      cnt = 0
+      for i in range(8):
+         if p2[i] != i:
+            pos = p2.index(i)
+            p2[i], p2[pos] = p2[pos], p2[i]
+            cnt += 1
+      if cnt & 1 == 0: # only keep even perms
+         print(p, cnt)
+
+# [A,B] = A B A' B' 
+#
+# from "Group Theory and the Rubik's Cube" by Janet Chen
+# http://people.math.harvard.edu/~jjchen/docs/Group%20Theory%20and%20the%20Rubik's%20Cube.pdfhttp://people.math.harvard.edu/~jjchen/docs/Group%20Theory%20and%20the%20Rubik's%20Cube.pdf 
+#
+# moves for corners (not pure) (p.37)
+# (D R D' R' F)^3 -> switch 2 corners plus mess up some edges
+# (D R')^3 (D' R)^3 -> rotate 2 corners plus mess up some edges
+# 
+# moves for edges (PURE) (p.38)
+#
+# "L R' U2 L' R B2" -> cycle 3 edges
+# "L R' F L R' D L R' B L R' U L R' F' L R' D' L R' B' L R' U'" -> reorient 2 edges
+#
+# Parity of (unoriented) edge permutations and (unoriented) corner permutations must match.
+# => if precisely two edges are swapped (->odd), then at least two corners must be swapped as well.
+# Lemma 11.14 -> any two edge cubies can be flipped (orientations changed), with no other change to the cube
+#
+
+def analyze(str, count = 1):
+   print(str, "*", count)
+   cube.reset()
+   cube.stringMove(str, count)
+   print(cube.getEdgePermutation())
+   print(cube.getCornerPermutation())
+  
+
+analyze("L R' U2 L' R B2")  # edge cycle
+analyze("L R' F L R' D L R' B L R' U L R' F' L R' D' L R' B' L R' U'")  # edge flip
+analyze("D R D' R' F", 3)     # corner swap
+
+#
+# using Rubik Cube solver site:
+#
+analyze("B U B D' B' U' B U' R2 U L2 U' R2 U L2 D B2")   # corner twist
+analyze("U' F D' B2 D F' D' B2 U D")    #corner cycle
 
 exit(0)
 
