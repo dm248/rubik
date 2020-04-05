@@ -352,6 +352,9 @@ class RubikCube():
               }
 
    def move(self, sequence, count = 1):   # apply sequence of moves
+      if count < 0: # interpret negative counts as inverse 
+         sequence = RubikCube.invertMoves(sequence)
+         count = -count
       for _ in range(count):
          for code in sequence:
             if code == 0:
@@ -520,6 +523,20 @@ class RubikCube():
       return "".join( [ remap.get(c)   if remap.get(c) != None  else c   for c in str] )
 
 
+   # elementary edge and corner moves
+   
+   # cycle edges 0,1,2->1,2,0 (edges on same face)
+   edge_cycle_012_str = "R2 U' B2 R2 B2 U B' F' U2 B F U2 R2"
+   # flip orientations of edges 0 and 1 (neighbors on same face)
+   edge_flip_01_str = "R U F R2 F' R' U F2 R2 U2 F2 U2 R2 F U2 F"
+   # cycle corners 0,1,2->1,2,0 (corners on same face)
+   corner_cycle_012_str = "R' L' D2 R U R' D2 R U' L"
+   # twist corners 0,1 (on same edge), 0,2 (across same face), 0,6 (across cube)
+   corner_twist_01_str = "D R D L' D' R' D R' F2 R B2 R' F2 R B2 L D2"
+   corner_twist_02_str = "U2 F D B2 D' F' D2 B2 D' R2 D' R2 U F2 U F2" 
+
+
+
 #
 # TESTS
 # 
@@ -590,6 +607,16 @@ def TESTsuite(facesonly = False):
    state = RubikCube.string2state(s)
    print(cube.isInState(state))
 
+   # rigid rotations
+   print("rigid rotations:")
+   for rot in range(24):
+      cube.reset()
+      cube.stringMove(RubikCube.rotateMoveString(RubikCube.edge_cycle_012_str, rot))
+      print(rot, cube.getEdgePermutation())
+   for rot in range(24):
+      cube.reset()
+      cube.stringMove(RubikCube.rotateMoveString(RubikCube.corner_cycle_012_str, rot))
+      print(rot, cube.getCornerPermutation())
   
 #TESTsuite(False)
 #TESTsuite(True)
@@ -929,18 +956,17 @@ for p in itertools.permutations(range(8)):
 # from "Group Theory and the Rubik's Cube" by Janet Chen
 # http://people.math.harvard.edu/~jjchen/docs/Group%20Theory%20and%20the%20Rubik's%20Cube.pdfhttp://people.math.harvard.edu/~jjchen/docs/Group%20Theory%20and%20the%20Rubik's%20Cube.pdf 
 #
-# moves for corners (not pure) (p.37)
-# (D R D' R' F)^3 -> switch 2 corners plus mess up some edges
-# (D R')^3 (D' R)^3 -> rotate 2 corners plus mess up some edges
-# 
-# moves for edges (PURE) (p.38)
+# "L R' U2 L' R B2"  edge cycle 0,2,8->8,0,2
+#                    (1 edge + 2 parallel edges on its two faces - not useful as building block)
 #
-# "L R' U2 L' R B2" -> cycle 3 edges
-# "L R' F L R' D L R' B L R' U L R' F' L R' D' L R' B' L R' U'" -> reorient 2 edges
+# "L R' F L R' D L R' B L R' U L R' F' L R' D' L R' B' L R' U'"  flip orientations of edges 1,3 
+#                                      (opposite on same face - not useful as building block)
+#
+# ("D R D' R' F")^3  corner swap + some edge transformations  (not useful as building block)
 #
 # Parity of (unoriented) edge permutations and (unoriented) corner permutations must match.
 # => if precisely two edges are swapped (->odd), then at least two corners must be swapped as well.
-# Lemma 11.14 -> any two edge cubies can be flipped (orientations changed), with no other change to the cube
+# Lemma 11.14 -> any two edge cubies can be flipped (orientations changed), with no other change to the cube.
 #
 
 def analyze(str, count = 1):
@@ -956,29 +982,51 @@ def analyze2(str, count = 1):
    cube.stringMove(str, count)
    #print(cube.getEdgePermutation())
    return cube.getCornerPermutation()
-  
-# edge cycle 0,2,8->8,0,2 (1 edge + 2 parallel edges on its two faces - not useful as building block)
-analyze("L R' U2 L' R B2")
-# flip orientations of edges 1,3 (opposite on same face - not useful as building block)
-analyze("L R' F L R' D L R' B L R' U L R' F' L R' D' L R' B' L R' U'")
-# corner swap + some edge transformations
-analyze("D R D' R' F", 3)     
 
-#
-# elementary corner and edge ops using Rubik Cube solver site:
-#
-# cycle corners 0,1,2->2,0,1 (corners on same face)
-analyze("L' U R' D2 R U' R' D2 L R")
-# twist corners 0 and 1 (corners on same edge)
-analyze("D R D L' D' R' D R' F2 R B2 R' F2 R B2 L D2")
-# cycle edges 0,1,2->1,2,0 (edges on same face)
-analyze("R2 U' B2 R2 B2 U B' F' U2 B F U2 R2")
-# flip orientations of edges 0 and 1 (neighbors on same face)
-analyze("R U F R2 F' R' U F2 R2 U2 F2 U2 R2 F U2 F")
+# construct all possible 8 * 7 / 2 = 28 two-corner twists
+# neighbor twists -> 8*3/2 = 12
+# same-face diag twists -> 8*3/2 = 12
+# opposite corner twists -> 8*1/2 = 4
+corner_twists = [None]*8
+for i in range(8):
+   corner_twists[i] = [None]*8
+for rot in range(24):
+   moveset = (RubikCube.corner_twist_01_str, RubikCube.corner_twist_02_str)
+   for s in moveset:
+      cube = RubikCube()
+      s = RubikCube.rotateMoveString(s, rot)	
+      cube.stringMove(s)
+      p = cube.getCornerPermutation()
+      lst = [ i   for i in range(8)   if p[i][1] != 0 ]
+      i,j = lst[0],lst[1]
+      if corner_twists[i][j] == None:
+         corner_twists[i][j] = s
+         corner_twists[j][i] = s
 
-for i in range(24):
-   print(i)
-   analyze(RubikCube.rotateMoveString("L R' U2 L' R B2", i))
+for i in range(8):
+   for j in range(8):
+      s = corner_twists[i][j]
+      p = None
+      if s != None:
+         cube = RubikCube()
+         cube.stringMove(s)
+         p = cube.getCornerPermutation()
+      print(i, j, p)
+
+
+s1 = corner_twists[0][2]
+s2 = corner_twists[2][6]
+
+cube = RubikCube()
+cube.stringMove(s1)
+cube.stringMove(s2, -1)
+print(cube.getCornerPermutation())
+print(s1 + " " + s2)
+s = "U2 F D B2 D' F' D2 B2 D' R2 D' R2 U F2 U F2"
+cube.reset()
+cube.stringMove(s)
+print(cube.getCornerPermutation())
+
 
 exit(0)
 
