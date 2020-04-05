@@ -500,7 +500,7 @@ class RubikCube():
                   "LFURBD", "LUBRDF", "LBDRFU", "LDFRUB",   #L in place, FUBD rotate
                   "BLUFRD", "BURFDL", "BRDFLU", "BDLFUR",   #B->L, then LURD rotate
                   "RBULFD", "RUFLDB", "RFDLBU", "RDBLUF",   #R->L, then BUFD rotate
-                  "FRUBLD", "RUFLDB", "RFDLBU", "RDBLUF",   #F->L, then BUFD rotate
+                  "FRUBLD", "FULBDR", "FLDBRU", "FDRBUL",   #F->L, then RULD rotate
                   "UFRDBL", "URBDLF", "UBLDFR", "ULFDRB",   #U->L, then FRBL rotate
                   "DFLUBR", "DLBURF", "DBRUFL", "DRFULB"    #D->L, then FLBR rotate
                 )
@@ -949,28 +949,36 @@ def analyze(str, count = 1):
    cube.stringMove(str, count)
    print(cube.getEdgePermutation())
    print(cube.getCornerPermutation())
+
+def analyze2(str, count = 1):
+   #print(str, "*", count)
+   cube.reset()
+   cube.stringMove(str, count)
+   #print(cube.getEdgePermutation())
+   return cube.getCornerPermutation()
   
-# edge cycle 0,2,8->8,0,2 ( 
+# edge cycle 0,2,8->8,0,2 (1 edge + 2 parallel edges on its two faces - not useful as building block)
 analyze("L R' U2 L' R B2")
-# flip orientations of edges 1,3 (opposite on same face)
+# flip orientations of edges 1,3 (opposite on same face - not useful as building block)
 analyze("L R' F L R' D L R' B L R' U L R' F' L R' D' L R' B' L R' U'")
 # corner swap + some edge transformations
 analyze("D R D' R' F", 3)     
 
 #
-# using Rubik Cube solver site:
+# elementary corner and edge ops using Rubik Cube solver site:
 #
-# 2,6,7->7,2,6
-analyze("U' F D' B2 D F' D' B2 U D")    #corner cycle
-
-
+# cycle corners 0,1,2->2,0,1 (corners on same face)
+analyze("L' U R' D2 R U' R' D2 L R")
 # twist corners 0 and 1 (corners on same edge)
 analyze("D R D L' D' R' D R' F2 R B2 R' F2 R B2 L D2")
+# cycle edges 0,1,2->1,2,0 (edges on same face)
+analyze("R2 U' B2 R2 B2 U B' F' U2 B F U2 R2")
 # flip orientations of edges 0 and 1 (neighbors on same face)
 analyze("R U F R2 F' R' U F2 R2 U2 F2 U2 R2 F U2 F")
 
 for i in range(24):
-   analyze(RubikCube.rotateMoveString("U' F D' B2 D F' D' B2 U D", i))
+   print(i)
+   analyze(RubikCube.rotateMoveString("L R' U2 L' R B2", i))
 
 exit(0)
 
