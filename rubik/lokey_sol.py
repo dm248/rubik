@@ -40,7 +40,6 @@ print("#w_a:")
 cube.move(seq_wa)
 state_wa = cube.getState()
 perm_wa = cube.state2permutation()
-cube.print()
 print("#w:")
 cube.reset()
 cube.move(seq_w)
@@ -108,22 +107,6 @@ for p in itertools.permutations(range(8)):
          print(p, cnt)
 
 
-#cnt = 0
-#for i in range(8):
-#   for j in range(8):
-#      if j == i: continue
-#      for k in range(8):
-#         if k == i or k == j: continue
-#         s = corner_cycles[i][j][k]
-#         p = None
-#         if s != None:
-#            cube = RubikCube()
-#            cube.stringMove(s)
-#            p = cube.getCornerPermutation()
-#            cnt += 1
-#         print(i, j, k, p)
-#print(cnt)
-
 
 # build corner rotations for a = (0, 3, 1, 6, 4, 2, 5, 7)  - pick cycles by hand
 print("build a (corner cycles):")
@@ -134,6 +117,15 @@ acycle_str = s1 + " " + s2
 print(acycle_str)
 acycle_perm = RubikCube.stringMoves2permutation(acycle_str)
 cube.permute(acycle_perm)
+state_str = cube.toString(RubikCube.FORMAT_FACESONLY)
+print(state_str)
+# rewrite in Kociemba's notation
+# -> URFDLB face ordering (instead of ULFRBD)
+# -> face colors ULFRBD (instead of YBRGOW)
+state_str = cube.toString(RubikCube.FORMAT_KOCIEMBA)
+print(state_str)  #UUUUUUFUUBRLRRRRRRRFRFFFFFDDDBDDDDDULLDLLLLLLFBBBBBFBB
+state_str = cube.toString(RubikCube.FORMAT_RUBIKSCUBESOLVER)
+print(state_str)  #111111311226222222434333336542444444355555355665666661
 print(cube.getCornerPermutation())
 # check a^-1 w a
 print(wa_corners)
@@ -144,9 +136,14 @@ cube.permute(acycle_perm)
 print(cube.getCornerPermutation())
 # it works
 
-# simplify a_str, remove corner twists
+# simplify a_str
 print("simplfy a_str:")
 a_str = RubikCube.invertStringMoves("B2 R' D L2 D' R B2 U2 R2 B2 D' F2 D B2 R2 U2")
+                                    #B2 R3 D1 L2 D3 R1 B2 U2 R2 B2 D3 F2 D1 B2 R2 U2 from Kociemba's
+
+#https://rubiks-cube-solver.com/solution.php?cube=0111111311226222222434333336542444444355555355665666661
+#curl http://localhost:8080/UUUUUUFUUBRLRRRRRRRFRFFFFFDDDBDDDDDULLDLLLLLLFBBBBBFBB
+
 print(a_str)
 cube.reset()
 a_perm = RubikCube.stringMoves2permutation(a_str)
@@ -198,7 +195,7 @@ def find_aflips(wa_corners):
       # construct a^(-1) * w * a
       cube.reset()
       cube.invPermute(aflip_perm)
-      cube.invPermute(acycle_perm)
+      cube.invPermute(acycle_perm)  # apply corner cycle -> may change corner orientations too
       cube.permute(perm_w)
       cube.permute(acycle_perm)
       cube.permute(aflip_perm)

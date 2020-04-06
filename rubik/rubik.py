@@ -16,6 +16,7 @@
 #          40 (Back center)  = ORANGE
 #          49 (Down center)  = WHITE
 #
+# In Kociemba's code, YBRGOW -> ULFRBD, and facelets are ordered in URFDLB order (instead of ULFRBD)
 #
 # state geometry:
 #
@@ -201,9 +202,27 @@ class RubikCube():
 
    # printing
 
-   def toString(self, facesonly = False):
-      i2cmap = RubikCube.int2state_map  if not facesonly  else RubikCube.int2state_map_FACES
-      return "".join( [ RubikCube.int2color(v, i2cmap) for v in self.state ]  )
+   FORMAT_DEFAULT = 0
+   FORMAT_FACESONLY = 1
+   FORMAT_KOCIEMBA = 2
+   FORMAT_RUBIKSCUBESOLVER = 3 
+
+   color_remap_Kociemba = { "Y": "U", "B": "L", "R": "F", "G": "R", "O": "B", "W": "D" }
+   color_remap_RCS      = { "Y": "1", "B": "2", "R": "3", "G": "4", "O": "5", "W": "6" }
+
+   # print state as string - in various formats
+   def toString(self, format = 0):
+      if format == RubikCube.FORMAT_DEFAULT:
+         return "".join( [ RubikCube.int2color(v, RubikCube.int2state_map) for v in self.state ]  )
+      elif format == RubikCube.FORMAT_FACESONLY:
+         return "".join( [ RubikCube.int2color(v, RubikCube.int2state_map_FACES) for v in self.state ]  )
+      elif format == RubikCube.FORMAT_KOCIEMBA:  # Kociemba's
+         ret = self.toString(RubikCube.FORMAT_FACESONLY)
+         ret = ret[:9] + ret[27:36] + ret[18:27] + ret[45:] + ret[9:18] + ret[36:45]   # URFDLB face order
+         return "".join( [RubikCube.color_remap_Kociemba[c] for c in ret ] )
+      else:  # rubiks-cube-solver.com site
+         ret = self.toString(RubikCube.FORMAT_FACESONLY)
+         return "".join( [RubikCube.color_remap_RCS[c] for c in ret ] )
 
    def _range2string(self, start, end, facesonly = False):
       i2cmap = RubikCube.int2state_map  if not facesonly  else RubikCube.int2state_map_FACES
@@ -397,7 +416,7 @@ class RubikCube():
       return RubikCube.moves2string(invseq)
 
    def _areCentersBad(tpl):
-      for pos in (4, 13, 22, 31, 40, 49):
+      for pos in RubikCube.center_indices:
          if tpl[pos] != pos:
             return True
       return False   
@@ -629,9 +648,12 @@ for rot in range(24):
 # 
 
 
-def TESTsuite(facesonly = False):
+def TESTsuite(format = RubikCube.FORMAT_DEFAULT):
+
+   facesonly =  (format != RubikCube.FORMAT_DEFAULT)
+
    cube = RubikCube()
-   print(cube.toString(facesonly))
+   print(cube.toString(format))
      
    # init
    print("#initial:")
@@ -685,7 +707,7 @@ def TESTsuite(facesonly = False):
    cube.reset()
    for i in range(3):  cube.move([ 1, 2, 3])
    for i in range(3):  cube.move([ 4, 5, 6])
-   s = cube.toString(True)
+   s = cube.toString(format)
    print(s)
    state = RubikCube.string2state(s)
    print(cube.isInState(state))
