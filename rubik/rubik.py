@@ -576,24 +576,33 @@ class RubikCube():
    # cycle edges 0,1,2->1,2,0 (edges on same face)
    edge_cycle_012_str = "R2 U' B2 R2 B2 U B' F' U2 B F U2 R2"
    # FIXME: complete set of edge cycles
-   # flip orientations of edges 0 and 1 (neighbors on same face)
-   # FIXME: complete set of 2-edge flips
+
+   # flip orientations of edges 0,1 (neighbors), 0,2 (across same face), 
+   #                            0,5 & 0,6 (across neighbor), and 0,10 (across cube)
    edge_flip_01_str = "R U F R2 F' R' U F2 R2 U2 F2 U2 R2 F U2 F"
-  
+   edge_flip_02_str = "U2 R2 D L2 F2 R2 U L2 B2 R' U' F U F2 R F U' F'"
+   edge_flip_05_str = "D2 F2 R2 U2 R2 F2 D' L2 D' B' L' D' B2 D B L'"
+   edge_flip_06_str = "U' B2 U' F2 D' L2 D F2 U2 B R' D' R2 D B R'"
+   edge_flip_0a_str = "U B2 L2 D' F2 L2 B2 U2 R2 U' L R' F R2 F L' R' U'"
+
+   # storage for all 12 * 11 = 66*2 two-edge flips - initialized after class code
+   edge_flips = [ [None]*12  for _ in range(12) ]
 
    # basic 3-corner cycles that generate even corner permutations
    #
-   # cycle corners 0,1,2->1,2,0 (corners on same face)
-   # FIXME: 016 (two on same edge, two across same face)
-   # FIXME: 025 (two across same face, another two across same face)
-   corner_cycle_012_str = "R' L' D2 R U R' D2 R U' L"
+   # cycle corners 0,1,2->2,1,0 (corners on same face) -> 8*3*6 = 144
+   #               0,1,6->6,0,1 (two on same edge, two across same face) ->8*3*6 = 144
+   #               0,2,5->5,0,2 (two across same face, another two across same face) -> 8*(3/3)*6 = 48
+   corner_cycle_012_str = "L' U R' D2 R U' R' D2 L R"
+   corner_cycle_015_str = "F R2 B L2 B' R2 B L2 F' L B' R B L' B' R'"
+   corner_cycle_025_str = "F2 L2 F' R2 U2 B D2 R2 B' F D' F' U2 F D' F' R2 F'"
 
    # storage for all 8*7*6 = 336 three-corner cycles - initialized after class code
    corner_cycles = [ [ [None]*8 for __ in range(8) ] for _ in range(8) ]
 
    # basic 2-corner twists that generate corner orientations
    #
-   # twist corners 0,1 (on same edge), 0,2 (across same face), 0,6 (across cube)
+   # twist corners 0,1 (on same edge), 0,2 (across same face), 0,5 (across cube)
    corner_twist_01_str = "D R D L' D' R' D R' F2 R B2 R' F2 R B2 L D2"
    corner_twist_02_str = "U2 F D B2 D' F' D2 B2 D' R2 D' R2 U F2 U F2" 
    corner_twist_06_str = "U B U' F2 U B' U' F2 D B2 D' F2 D B2 D' F2"
@@ -606,9 +615,29 @@ class RubikCube():
 # additional initialization
 ####
 
-# build all basic corner twists: neighbor twists -> 8*3/2 = 12
-#                                same-face diag twists -> 8*3/2 = 12
-#                                opposite corner twists -> 8*1/2 = 4
+# build all basic edge flips: neighbors       -> 12*4 = 48
+#                             across face     -> 12*2 = 24
+#                             across neighbor -> 12*4 = 48
+#                             across cube     -> 12*1 = 12
+for rot in range(24):
+   moveset = (RubikCube.edge_flip_01_str, RubikCube.edge_flip_02_str,
+              RubikCube.edge_flip_05_str, RubikCube.edge_flip_06_str, RubikCube.edge_flip_0a_str)
+   edge_flips = RubikCube.edge_flips
+   for s in moveset:
+      cube = RubikCube()
+      s = RubikCube.rotateMoveString(s, rot)
+      cube.stringMove(s)
+      p = cube.getEdgePermutation()
+      lst = [ i   for i in range(12)   if p[i][1] != 0 ]
+      i,j = lst[0],lst[1]
+      if edge_flips[i][j] == None:
+         edge_flips[i][j] = s
+         edge_flips[j][i] = s
+
+
+# build all basic corner twists: neighbor twists -> 8*3 = 12
+#                                same-face diag twists -> 8*3 = 12
+#                                opposite corner twists -> 8*1 = 8
 for rot in range(24):
    moveset = (RubikCube.corner_twist_01_str, RubikCube.corner_twist_02_str, RubikCube.corner_twist_06_str)
    corner_twists = RubikCube.corner_twists
@@ -627,19 +656,26 @@ for rot in range(24):
 #                                ?
 #                                ?
 for rot in range(24):
-   moveset = (RubikCube.corner_cycle_012_str,)
+   moveset = (RubikCube.corner_cycle_012_str, RubikCube.corner_cycle_015_str, RubikCube.corner_cycle_025_str)
    corner_cycles = RubikCube.corner_cycles
    for s in moveset:
       cube = RubikCube()
       s = RubikCube.rotateMoveString(s, rot)
+      sinv = RubikCube.invertStringMoves(s) #inverse cycle
       cube.stringMove(s)
       p = cube.getCornerPermutation()
-      lst = [ i   for i in range(8)   if p[i][0] != i ]
-      i,j,k = lst[0],lst[1],lst[2]
-      if corner_cycles[i][j][k] == None:
+      lst = [ i for i in range(8)   if p[i][0] != i ]  # reconstruct cycle ijk->jki
+      lst[1] = p[lst[2]][0]  
+      lst[0] = p[lst[1]][0]
+      #print(rot, p, lst)
+      i,j,k = lst[0],lst[1],lst[2]        
+      if corner_cycles[i][j][k] == None:   # store cycle and inverse
          corner_cycles[i][j][k] = s
          corner_cycles[j][k][i] = s
          corner_cycles[k][i][j] = s
+         corner_cycles[k][j][i] = sinv
+         corner_cycles[j][i][k] = sinv
+         corner_cycles[i][k][j] = sinv
 
 
 
