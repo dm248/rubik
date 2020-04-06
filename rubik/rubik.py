@@ -379,6 +379,10 @@ class RubikCube():
       cube.invMove(seq2)
       return cube.isReset()
 
+   def areEqualStringMoves(s1, s2):
+      return RubikCube.areEqualMoves(RubikCube.string2moves(s1), RubikCube.string2moves(s2))
+
+
    # parsing sequences
    
    str2move_map = { "L":   1,  "R":   2,  "F":   3,  "B":   4,  "U":   5,  "D":   6,
@@ -394,6 +398,10 @@ class RubikCube():
        
    def moves2string(seq):
        return " ".join( [ RubikCube.move2str_map[m] for m in seq ] )
+
+   def invertStringMoves(s):
+      invseq = RubikCube.invertMoves( RubikCube.string2moves(s) )
+      return RubikCube.moves2string(invseq)
 
    def __areCentersBad(tpl):
       return tpl[4] != 5 or tpl[13] != 14 or tpl[22] != 23 or tpl[31] != 32 or tpl[40] != 41 or tpl[49] != 50 
@@ -450,6 +458,9 @@ class RubikCube():
       cube = RubikCube()
       cube.move(sequence)
       return cube.state2permutation()
+
+   def stringMoves2permutation(s: str):
+      return RubikCube.moves2permutation(RubikCube.string2moves(s))
 
    # convert a sequence of moves to a state (starting from the solved cube)
    def moves2state(sequence):
@@ -530,13 +541,29 @@ class RubikCube():
 
 
    # elementary edge and corner moves
+   #
+   # based on ideas from "Group Theory and the Rubik's Cube" by Janet Chen
+   #   http://people.math.harvard.edu/~jjchen/docs/Group%20Theory%20and%20the%20Rubik's%20Cube.pdf
+   # and also using https://rubiks-cube-solver.com
+   #
+   # edge positions, edge orientations, corner positions, corner orientations form commuting subgroups
+   # 
+   # Parity of (unoriented) edge permutations and (unoriented) corner permutations must match.
+   # (e.g., if precisely two edges are swapped (->odd), then at least two corners must be swapped as well.)
+   #
+   # Lemma 11.14 -> any two edge cubies can be flipped (orientations changed), with no other change to the cube.
    
    # cycle edges 0,1,2->1,2,0 (edges on same face)
    edge_cycle_012_str = "R2 U' B2 R2 B2 U B' F' U2 B F U2 R2"
+   # FIXME: complete set of edge cycles
    # flip orientations of edges 0 and 1 (neighbors on same face)
+   # FIXME: complete set of 2-edge flips
    edge_flip_01_str = "R U F R2 F' R' U F2 R2 U2 F2 U2 R2 F U2 F"
+  
 
    # cycle corners 0,1,2->1,2,0 (corners on same face)
+   # FIXME: 016 (two on same edge, two across same face)
+   # FIXME: 025 (two across same face, another two across same face)
    corner_cycle_012_str = "R' L' D2 R U R' D2 R U' L"
    # storage for all 8*7*6 = 336 three-corner cycles - initialized after class code
    corner_cycles = [ [ [None]*8 for __ in range(8) ] for _ in range(8) ]
@@ -545,7 +572,7 @@ class RubikCube():
    corner_twist_01_str = "D R D L' D' R' D R' F2 R B2 R' F2 R B2 L D2"
    corner_twist_02_str = "U2 F D B2 D' F' D2 B2 D' R2 D' R2 U F2 U F2" 
    corner_twist_06_str = "U B U' F2 U B' U' F2 D B2 D' F2 D B2 D' F2"
-   # storage for all 8 * 7 = 28 two-corner twists - initialized after class code
+   # storage for all 8 * 7 = 28*2 two-corner twists - initialized after class code
    corner_twists = [ [None]*8  for _ in range(8) ]
 
 
@@ -568,6 +595,9 @@ for rot in range(24):
          corner_twists[i][j] = s
          corner_twists[j][i] = s
 
+# build all basic corner cycles: all 3 on same face -> 8 * 3 * 3 = 72 
+#                                ?
+#                                ?
 for rot in range(24):
    moveset = (RubikCube.corner_cycle_012_str,)
    corner_cycles = RubikCube.corner_cycles
@@ -665,412 +695,25 @@ def TESTsuite(facesonly = False):
       cube.reset()
       cube.stringMove(RubikCube.rotateMoveString(RubikCube.corner_cycle_012_str, rot))
       print(rot, cube.getCornerPermutation())
+
+   # (group) order of moves
+   print("#order of basic moves:")
+   print( [ RubikCube.findOrder( [m] )  for m in range(1, 7) ] )
+
+   print("L F:", RubikCube.findOrder( [1, 3] ))
+   seq1_str = "R U2 D' B D'"
+   seq2_str = "D' B D' U2 R"
+   seq1 = RubikCube.string2moves(seq1_str)
+   seq2 = RubikCube.string2moves(seq2_str)
+   print(seq1_str + ":", RubikCube.findOrder(seq1))
+   print(seq2_str + ":", RubikCube.findOrder(seq2))
   
+
 #TESTsuite(False)
 #TESTsuite(True)
 
 
-
-print("#order of basic moves:")
-print( [ RubikCube.findOrder( [m] )  for m in range(1, 7) ] )
-
-print("L F:", RubikCube.findOrder( [1, 3] ))
-seq1_str = "R U2 D' B D'"
-seq2_str = "D' B D' U2 R"
-seq1 = RubikCube.string2moves(seq1_str)
-seq2 = RubikCube.string2moves(seq2_str)
-print(RubikCube.findOrder(seq1), seq1_str)
-print(RubikCube.findOrder(seq2), seq2_str)
-
-# colormap at https://rubiks-state-solver.com/
-#
-# RubikCube.int2color_map = { 1: "W", 2: "O", 3: "G", 4: "R", 5: "B", 6: "Y" }
-
-
-def checkMoves(s):
-   moves = RubikCube.string2moves(s)
-   print(s)
-   print(moves)
-   print(RubikCube.findOrder(moves))
-
-
-wStr = "U R2 F2 R2 D L2 B2 D' F2 D U2 L' R2 U B U F' L2 F R'"
-waStr = "B2 D2 U' R2 D U2 B2 L R2 D' U2 L D L2 B L' U L R'"
-wbStr = "L2 U L2 R2 U F2 D2 F2 R2 U R' U' L' B L2 R D B2 F' R'"
-
-#waStr = " ".join( ["R U L B", wStr, "B' L' U' R'"] )
-
-checkMoves(wStr)
-checkMoves(waStr)
-checkMoves(wbStr)
-
-
-# brute force a
-
-# moves, ordered such that it is easy to distinguish moves generated by same basic move
-# - indices (1,2,3), (4,5,6), ... (16,17,18) are from same basic move
-# 
-move_set = (0, 1, -1, 11, 2, -2, 12, 3, -3, 13, 4, -4, 14, 5, -5, 15, 6, -6, 16)
-imove_set = tuple(enumerate(move_set))
-
-
-def search5v1(seq_wa, seq_w):
-   cube = RubikCube()
-   for m1 in move_set:
-      m1inv = -m1   if m1 < 10  else m1
-      for m2 in move_set:
-         sys.stdout.write('.')
-         sys.stdout.flush()
-         m2inv = -m2   if m2 < 10  else m2
-         for m3 in move_set:
-            m3inv = -m3   if m3 < 10  else m3
-            for m4 in move_set:
-               m4inv = -m4   if m4 < 10  else m4
-               for m5 in move_set:
-                  m5inv = -m5   if m5 < 10  else m5
-                  seq = (m1,m2,m3,m4,m5) + seq_w + (m5inv,m4inv,m3inv,m2inv,m1inv)
-                  if RubikCube.areEqualMoves(seq, seq_wa):
-                     print(m1, m2, m3, m4, m5)
-
-
-
-def search5v2(state_wa, seq_w):
-   state_wa = RubikCube.moves2state(seq_wa)
-   cube = RubikCube()
-   for m1 in move_set:
-      m1inv = -m1   if m1 < 10  else m1
-      for m2 in move_set:
-         sys.stdout.write('.')
-         sys.stdout.flush()
-         m2inv = -m2   if m2 < 10  else m2
-         for m3 in move_set:
-            m3inv = -m3   if m3 < 10  else m3
-            for m4 in move_set:
-               m4inv = -m4   if m4 < 10  else m4
-               for m5 in move_set:
-                  m5inv = -m5   if m5 < 10  else m5
-                  seq = (m1,m2,m3,m4,m5) + seq_w + (m5inv,m4inv,m3inv,m2inv,m1inv)
-                  cube.reset()
-                  cube.move(seq)
-                  if cube.isInState(state_wa):
-                     print(m1, m2, m3, m4, m5)
-              
-
-def search5v3(seq_wa, seq_w):
-   state_wa = RubikCube.moves2state(seq_wa)
-   perm_w = RubikCube.moves2permutation(seq_w)
-   cube = RubikCube()
-   for m1 in move_set:
-      m1inv = -m1   if m1 < 10  else m1
-      for m2 in move_set:
-         sys.stdout.write('.')
-         sys.stdout.flush()
-         m2inv = -m2   if m2 < 10  else m2
-         for m3 in move_set:
-            m3inv = -m3   if m3 < 10  else m3
-            for m4 in move_set:
-               m4inv = -m4   if m4 < 10  else m4
-               for m5 in move_set:
-                  m5inv = -m5   if m5 < 10  else m5
-                  cube.reset()
-                  cube.move( (m1,m2,m3,m4,m5) )
-                  cube.permute(perm_w)
-                  cube.move( (m5inv,m4inv,m3inv,m2inv,m1inv) )
-                  if cube.isInState(state_wa):
-                     print(m1, m2, m3, m4, m5) 
-
-
-def skipCheck(i1, i2):
-   return i1 != 0 and ((i1 - 1) // 3 == (i2 - 1) // 3 or i2 == 0)
-
-
-def search5v3b(seq_wa, seq_w):
-   state_wa = RubikCube.moves2state(seq_wa)
-   perm_w = RubikCube.moves2permutation(seq_w)
-   cube = RubikCube()
-   #cnt = 0
-   for (i1,m1) in imove_set:
-      m1inv = -m1   if m1 < 10  else m1
-      for (i2,m2) in imove_set:
-         if skipCheck(i1, i2):  continue
-         sys.stdout.write('.')
-         sys.stdout.flush()
-         m2inv = -m2   if m2 < 10  else m2
-         for (i3,m3) in imove_set:
-            if skipCheck(i2, i3):  continue
-            m3inv = -m3   if m3 < 10  else m3
-            for (i4,m4) in imove_set:
-               if skipCheck(i3, i4):  continue
-               m4inv = -m4   if m4 < 10  else m4
-               for (i5,m5) in imove_set:
-                  if skipCheck(i4, i5):  continue
-                  m5inv = -m5   if m5 < 10  else m5
-                  #cnt += 1
-                  cube.reset()
-                  cube.move( (m1,m2,m3,m4,m5) )
-                  cube.permute(perm_w)
-                  cube.move( (m5inv,m4inv,m3inv,m2inv,m1inv) )
-                  if cube.isInState(state_wa):
-                     print(m1, m2, m3, m4, m5) 
-   #print(cnt, 18 * (pow(15, 4) + pow(15, 3) + pow(15, 2) + pow(15, 1) + 1) + 1)
-
-
-def search5v4(seq_wa, seq_w):
-   state_wa = RubikCube.moves2state(seq_wa)
-   perm_w = RubikCube.moves2permutation(seq_w)
-   cube = RubikCube()
-   #cnt = 0
-   for (i1,m1) in imove_set:
-      for (i2,m2) in imove_set:
-         if skipCheck(i1, i2):  continue
-         sys.stdout.write('.')
-         sys.stdout.flush()
-         for (i3,m3) in imove_set:
-            if skipCheck(i2, i3):  continue
-            for (i4,m4) in imove_set:
-               if skipCheck(i3, i4):  continue
-               cube.reset()
-               cube.move( (m1,m2,m3,m4) )
-               state4 = cube.getState() 
-               for (i5,m5) in imove_set:
-                  if skipCheck(i4, i5):  continue
-                  #cnt += 1
-                  cube.setState(state4)
-                  cube.move( (m5,) )
-                  perm = cube.state2permutation()
-                  cube.permute(perm_w)
-                  cube.invPermute(perm)
-                  if cube.isInState(state_wa):
-                     print(m1, m2, m3, m4, m5) 
-   #print(cnt, 18 * (pow(15, 4) + pow(15, 3) + pow(15, 2) + pow(15, 1) + 1) + 1)
-
-
-def search5v4b(seq_wa, seq_w):
-   state_wa = RubikCube.moves2state(seq_wa)
-   perm_w = RubikCube.moves2permutation(seq_w)
-   cube = RubikCube()
-   state0 = cube.getState()
-   cnt = 0
-   for (i1,m1) in imove_set:
-      cube.setState(state0)
-      cube.move( (m1,) )
-      state1 = cube.getState()
-      for (i2,m2) in imove_set:
-         if skipCheck(i1, i2):  continue
-         sys.stdout.write('.')
-         sys.stdout.flush()
-         cube.setState(state1)
-         cube.move( (m2,) )
-         state2 = cube.getState()
-         for (i3,m3) in imove_set:
-            if skipCheck(i2, i3):  continue
-            cube.setState(state2)
-            cube.move( (m3,) )
-            state3 = cube.getState()
-            for (i4,m4) in imove_set:
-               if skipCheck(i3, i4):  continue
-               cube.setState(state3)
-               cube.move( (m4,) )
-               state4 = cube.getState() 
-               for (i5,m5) in imove_set:
-                  if skipCheck(i4, i5):  continue
-                  cnt += 1
-                  cube.setState(state4)
-                  cube.move( (m5,) )
-                  perm = cube.state2permutation()
-                  cube.permute(perm_w)
-                  cube.invPermute(perm)
-                  if cube.isInState(state_wa):
-                     print(m1, m2, m3, m4, m5) 
-   print(cnt, 18 * (pow(15, 4) + pow(15, 3) + pow(15, 2) + pow(15, 1) + 1) + 1)
-
-
-def search5v5(seq_wa, seq_w, Nmax, progIndLvl):
-   state_wa = RubikCube.moves2state(seq_wa)
-   perm_w = RubikCube.moves2permutation(seq_w)
-   #
-   cube = RubikCube()
-   state0 = cube.getState()
-   states = [state0] * Nmax
-   indices = [0] * (Nmax + 1)
-   idxMax = len(move_set)
-   cnt = 0
-   while True:
-      # increment, track state too
-      i = 0
-      while i < Nmax:
-         if i == progIndLvl:
-            sys.stdout.write('.')
-            sys.stdout.flush()
-         idx = indices[i] + 1
-         if idx == idxMax:     # standard increment
-            indices[i] = 0      # set 0 for now, will be updated at end
-            i += 1
-            continue
-         indices[i] = idx
-         if skipCheck(indices[i + 1], idx):  # skip consecutive repeated moves
-            continue
-         break   # exit loop with i = last updated counter
-      if i == Nmax:  # termination check
-         break
-      cube.setState(states[i])             # load saved state at lvl i
-      cube.move( (move_set[indices[i]],) ) # make i-th level move
-      for j in range(i - 1, -1, -1):  # take first valid moves at levels j < i, update states
-         while skipCheck(indices[j + 1], indices[j]):
-            indices[j] += 1
-         states[j] = cube.getState()    # store starting state
-         cube.move( (move_set[indices[j]],) )  # make level j move
-      cnt += 1
-      #print(cnt, indices, cube.getState(), move_set)
-      perm = cube.state2permutation()
-      cube.permute(perm_w)
-      cube.invPermute(perm)
-      if cube.isInState(state_wa):
-         print( tuple( [move_set[idx] for idx in indices] ) ) 
-   print(cnt, 18 * (pow(15, Nmax) - 1) // (15 - 1) + 1 )
-
-
-
-
-seq_wa = tuple(RubikCube.string2moves(waStr))
-seq_wb = tuple(RubikCube.string2moves(wbStr))
-seq_w = tuple(RubikCube.string2moves(wStr))
-
-cube = RubikCube()
-print("#w_a:")
-cube.move(seq_wa)
-state_wa = cube.getState()
-cube.print()
-print("#w:")
-cube.reset()
-cube.move(seq_w)
-state_w = cube.getState()
-cube.print()
-print("#w_b:")
-cube.reset()
-cube.move(seq_wb)
-state_wb = cube.getState()
-cube.print()
-
-
-def edgeAndCornerPerms(state):
-   cube = RubikCube()
-   cube.setState(state)
-   edges = cube.getEdgePermutation()
-   corners = cube.getCornerPermutation()
-   print(edges)
-   print(corners)
-   return edges, corners  
-
-# compare edge and corner permutations
-print("#w_a - edge and corner perms:")
-wa_edges, wa_corners = edgeAndCornerPerms(state_wa)
-print("#w - edge and corner perms:")
-w_edges, w_corners = edgeAndCornerPerms(state_w)
-print("#w_b - edge and corner perms:")
-wb_edges, wb_corners = edgeAndCornerPerms(state_wb)
-
-# get corner perms of in a from wa, w
-corn_wa = [p[0]   for p in wa_corners]
-corn_w  = [p[0]   for p in w_corners]
-print(corn_wa, corn_w)
-
-import itertools
-
-# consider all corner permutations for 'a'
-# and check whether w_a = a^(-1) w a, i.e., a * w_a = w * a
-print("#viable corner perms for a:")
-for p in itertools.permutations(range(8)):
-   # p[i] is the new corner at 'i'  (so it moves from p[i] -> i)
-   # construct w * a
-   st_w_a = [corn_w[p[i]] for i in range(8)]
-   # construct a^-1 on 0...7
-   st_ainv = [p[i] for i in range(8)]
-   st_ainv_wa = [st_ainv[corn_wa[i]] for i in range(8)]
-   if st_ainv_wa == st_w_a:
-      # count swaps
-      p2 = list(p)
-      cnt = 0
-      for i in range(8):
-         if p2[i] != i:
-            pos = p2.index(i)
-            p2[i], p2[pos] = p2[pos], p2[i]
-            cnt += 1
-      if cnt & 1 == 0: # only keep even perms
-         print(p, cnt)
-
-# [A,B] = A B A' B' 
-#
-# from "Group Theory and the Rubik's Cube" by Janet Chen
-# http://people.math.harvard.edu/~jjchen/docs/Group%20Theory%20and%20the%20Rubik's%20Cube.pdfhttp://people.math.harvard.edu/~jjchen/docs/Group%20Theory%20and%20the%20Rubik's%20Cube.pdf 
-#
-# "L R' U2 L' R B2"  edge cycle 0,2,8->8,0,2
-#                    (1 edge + 2 parallel edges on its two faces - not useful as building block)
-#
-# "L R' F L R' D L R' B L R' U L R' F' L R' D' L R' B' L R' U'"  flip orientations of edges 1,3 
-#                                      (opposite on same face - not useful as building block)
-#
-# ("D R D' R' F")^3  corner swap + some edge transformations  (not useful as building block)
-#
-# Parity of (unoriented) edge permutations and (unoriented) corner permutations must match.
-# => if precisely two edges are swapped (->odd), then at least two corners must be swapped as well.
-# Lemma 11.14 -> any two edge cubies can be flipped (orientations changed), with no other change to the cube.
-#
-
-def analyze(str, count = 1):
-   print(str, "*", count)
-   cube.reset()
-   cube.stringMove(str, count)
-   print(cube.getEdgePermutation())
-   print(cube.getCornerPermutation())
-
-def analyze2(str, count = 1):
-   #print(str, "*", count)
-   cube.reset()
-   cube.stringMove(str, count)
-   #print(cube.getEdgePermutation())
-   return cube.getCornerPermutation()
-
-
-for i in range(8):
-   for j in range(8):
-      if j == i: continue
-      for k in range(8):
-         if k == i or k == j: continue
-         s = corner_cycles[i][j][k]
-         p = None
-         if s != None:
-            cube = RubikCube()
-            cube.stringMove(s)
-            p = cube.getCornerPermutation()
-         print(i, j, k, p)
-
-
-s1 = corner_twists[0][2]
-s2 = corner_twists[2][6]
-seq2 = RubikCube.string2moves(s2)
-seq2inv = RubikCube.invertMoves(seq2)
-s2inv = RubikCube.moves2string(seq2inv)
-
-cube = RubikCube()
-cube.stringMove(s1)
-cube.stringMove(s2inv)
-print(cube.getCornerPermutation())
-print(s1 + " " + s2inv)
-s = "U B U' F2 U B' U' F2 D B2 D' F2 D B2 D' F2"
-cube.reset()
-cube.stringMove(s)
-print(cube.getCornerPermutation())
-
-
-exit(0)
-
-#search5v1(seq_wa, seq_w)
-#search5v2(seq_wa, seq_w)
-#search5v3(seq_wa, seq_w)
-#search5v3b(seq_wa, seq_w)
-#search5v4(seq_wa, seq_w)
-#search5v4b(seq_wa, seq_w)
-#search5v5(seq_wa, seq_w, 5, 4)    # 5-move bruteforce for a
-search5v5(seq_wa, seq_w, 7, 5)     # 7-move bruteforce for a
+######
+# END
+######
 

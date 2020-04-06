@@ -10,8 +10,8 @@ from rubik import *
 
 
   
-#TESTsuite(False)
-#TESTsuite(True)
+TESTsuite(False)
+TESTsuite(True)
 
 
 
