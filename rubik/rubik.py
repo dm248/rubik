@@ -206,6 +206,8 @@ class RubikCube():
    FORMAT_FACESONLY = 1
    FORMAT_KOCIEMBA = 2
    FORMAT_RUBIKSCUBESOLVER = 3 
+   #curl http://localhost:8080/...
+   #https://rubiks-cube-solver.com/solution.php?cube=0...
 
    color_remap_Kociemba = { "Y": "U", "B": "L", "R": "F", "G": "R", "O": "B", "W": "D" }
    color_remap_RCS      = { "Y": "1", "B": "2", "R": "3", "G": "4", "O": "5", "W": "6" }
