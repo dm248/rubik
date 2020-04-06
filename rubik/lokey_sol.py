@@ -117,15 +117,6 @@ acycle_str = s1 + " " + s2
 print(acycle_str)
 acycle_perm = RubikCube.stringMoves2permutation(acycle_str)
 cube.permute(acycle_perm)
-state_str = cube.toString(RubikCube.FORMAT_FACESONLY)
-print(state_str)
-# rewrite in Kociemba's notation
-# -> URFDLB face ordering (instead of ULFRBD)
-# -> face colors ULFRBD (instead of YBRGOW)
-state_str = cube.toString(RubikCube.FORMAT_KOCIEMBA)
-print(state_str)  #UUUUUUFUUBRLRRRRRRRFRFFFFFDDDBDDDDDULLDLLLLLLFBBBBBFBB
-state_str = cube.toString(RubikCube.FORMAT_RUBIKSCUBESOLVER)
-print(state_str)  #111111311226222222434333336542444444355555355665666661
 print(cube.getCornerPermutation())
 # check a^-1 w a
 print(wa_corners)
@@ -138,11 +129,25 @@ print(cube.getCornerPermutation())
 
 # simplify a_str
 print("simplfy a_str:")
+
+cube.reset()
+cube.permute(acycle_perm)
+state_str = cube.toString(RubikCube.FORMAT_FACESONLY)
+print(state_str)
+# rewrite in Kociemba's notation
+# -> URFDLB face ordering (instead of ULFRBD)
+# -> face colors ULFRBD (instead of YBRGOW)
+state_str = cube.toString(RubikCube.FORMAT_KOCIEMBA)
+print(state_str)  #UUUUUUFUUBRLRRRRRRRFRFFFFFDDDBDDDDDULLDLLLLLLFBBBBBFBB
+state_str = cube.toString(RubikCube.FORMAT_RUBIKSCUBESOLVER)
+print(state_str)  #111111311226222222434333336542444444355555355665666661
+
+#curl http://localhost:8080/UUUUUUFUUBRLRRRRRRRFRFFFFFDDDBDDDDDULLDLLLLLLFBBBBBFBB
+#https://rubiks-cube-solver.com/solution.php?cube=0111111311226222222434333336542444444355555355665666661
+
 a_str = RubikCube.invertStringMoves("B2 R' D L2 D' R B2 U2 R2 B2 D' F2 D B2 R2 U2")
                                     #B2 R3 D1 L2 D3 R1 B2 U2 R2 B2 D3 F2 D1 B2 R2 U2 from Kociemba's
 
-#https://rubiks-cube-solver.com/solution.php?cube=0111111311226222222434333336542444444355555355665666661
-#curl http://localhost:8080/UUUUUUFUUBRLRRRRRRRFRFFFFFDDDBDDDDDULLDLLLLLLFBBBBBFBB
 
 print(a_str)
 cube.reset()
@@ -219,68 +224,39 @@ cube.invPermute(perm_wa)
 print(cube.isReset())
 
 # compactify result for a_str
-a1_str = ("B' R F' L2 F R' F' L2 B F B' U F' D2 F U' F' D2 B F D2 B' R2 F' L2 F R2 F' L2 F D' F D B D'",
-          "F' D' B2 L' U2 R' D2 R U2 R' D2 R B' R B L B' R' B' L2 B R F2 R' B' R2 F2 R' D2 R' D2 L B2",
-          "L B2 F R F L' F' R' F R' U2 R D2 R' U2 R D2 L F2 U R U L' U' R' U R' B2 R F2 R' B2 R F2 L U2"
-         )
 
-print(" ".join(a1_str) == a_str)
+print(a_str)
+cube.reset()
+cube.stringMove(a_str)
+print("a_state:", cube.toString(RubikCube.FORMAT_KOCIEMBA))
+    #UUFUUUDUBRRURRRBRFFFUFFFLFRFDDDDDBDRLLRLLLDLDLBBBBBUBL
+    #-> B2 U1 F2 U2 F2 D3 L2 U1 L2 U2 F3 L2 F1 D1 U3 B3 U3 B3
+a1_str = RubikCube.invertStringMoves("B2 U1 F2 U2 F2 D3 L2 U1 L2 U2 F3 L2 F1 D1 U3 B3 U3 B3")
+print("simplified a=", a1_str, RubikCube.areEqualStringMoves(a_str, a1_str))
 
-a2_str = (RubikCube.invertStringMoves("U D' F2 U' D F L2 B2 R2 B2 D' R2 D L2 D' R2"),
-          RubikCube.invertStringMoves("R2 L' D2 F2 B' U' R2 L2 F' B2 U2 R2 L2 F2 U' R2 L2"),
-          RubikCube.invertStringMoves("R D R' D B2 D' R2 D' L' B2 D R2 L2 U' F2 U L2 D")
-         )
-
-a3_str = " ".join(a2_str)
-print(a3_str, RubikCube.areEqualStringMoves(a_str, a3_str) )
-
-a4_str = ("R2 D L2 D' R2 D B2 R2 B2 L2 F' D' U F2 D U' L2 R2 U F2 L2 R2 U2 B2 F L2 R2 U B F2 D2 L R2",
-          "D' L2 U' F2 U L2 R2 D' B2 L D R2 D B2 D' R D' R'")
-
-a5_str = (RubikCube.invertStringMoves("R2 B2 U2 F2 U' R U D2 R' U2 F2 B2 D' F2 D L2 F2 D R2"),
-          "D' L2 U' F2 U L2 R2 D' B2 L D R2 D B2 D' R D' R'")
-
-a6_str = " ".join(a5_str)
-print(a6_str, RubikCube.areEqualStringMoves(a_str, a6_str) )
-
-a7_str = ("R2 D' F2 L2 D' F2 D B2 F2 U2 R D2 U' R' U F2 U2 B2 R2 D' L2 U' F2 U L2 R2 D' B2 L D R2",
-          "D B2 D' R D' R'")
-
-a8_str = (RubikCube.invertStringMoves("U' F2 U L2 D F2 L' F2 L' D' L2 B2 U2 D R2 F2 D2 F2 U2"),
-          "D B2 D' R D' R'")
-
-a9_str = " ".join(a8_str)
-print(a9_str, RubikCube.areEqualStringMoves(a_str, a9_str) )
-
-a10_str = RubikCube.invertStringMoves("F' D2 B' D F' B' R2 D' B U' L2 F2 R2 D' B2 U R2 U2 L2")
-print(a10_str, RubikCube.areEqualStringMoves(a_str, a10_str) )
-
-a11_str = "L2 U2 R2 U' B2 D R2 F2 L2 U B' D R2 B F D' B D2 F"
+a2_str = "B U B U D' F' L2 F U2 L2 U' L2 D F2 U2 F2 U' B2"
 
 # compute secret key a^(-1) w_b a
 
-key_str = RubikCube.invertStringMoves(a11_str) + " " + wbStr + " " + a11_str
+key_str = RubikCube.invertStringMoves(a2_str) + " " + wbStr + " " + a2_str
 print(key_str)
 
-key2_str = ("F' D2 B' D F' B' R2 D' B U' L2 F2 R2 D' B2 U R2 U2 L2 L2 U L2 R2 U F2 D2 F2 R2 U R'",
-            "U' L' B L2 R D B2 F' R' L2 U2 R2 U' B2 D R2 F2 L2 U B' D R2 B F D' B D2 F")
+# simplify it
+cube.reset()
+cube.stringMove(key_str)
+print("key_state:", cube.toString(RubikCube.FORMAT_KOCIEMBA))
+   #RRDBUUURFRBFLRFLFUBFDBFURRBBBDRDLULBFLRFLDLUDLDUDBULDF
+   #-> R1 B2 D2 F1 R2 D1 L3 B3 R1 B1 L2 U3 R2 U3 B2 L2 U3 F2 D1 F2
 
-print(RubikCube.areEqualStringMoves(key_str, " ".join(key2_str)) )
+key1_str = RubikCube.invertStringMoves("R1 B2 D2 F1 R2 D1 L3 B3 R1 B1 L2 U3 R2 U3 B2 L2 U3 F2 D1 F2")
+print(key1_str)
+print(key1_str.replace(" ",""))
 
-key3_str = (RubikCube.invertStringMoves("F R' L F R L' F R' F2 B2 R2 D R2 D2 B2 R2 D'"),
-            RubikCube.invertStringMoves("R' F' L D2 F' U' B2 R2 L U' F U B2 D L2 U2 D' F2 U2 R2")
-           )
+#actf{F2D'F2UL2B2UR2UL2B'R'BLD'R2F'D2B2R'}
 
-key4_str = " ".join(key3_str)
-print(key4_str, RubikCube.areEqualStringMoves(key_str, key4_str) )
-             
-key5_str = RubikCube.invertStringMoves("R B2 D2 F R2 D L' B' R B L2 U' R2 U' B2 L2 U' F2 D F2")
-
-print(key5_str, RubikCube.areEqualStringMoves(key_str, key5_str) )
-
-print(key5_str.replace(" ",""))
 
 exit(0)
+
 
 
 ## blind search up to some depth using 6 basic moves
