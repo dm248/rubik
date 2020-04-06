@@ -381,6 +381,11 @@ class RubikCube():
    for k,v in str2move_map.items(): 
       move2str_map[v] = k
 
+   str2move_map.update(   # insert alternative move names
+                  { "L1":  1,  "R1":  2,  "F1":  3,  "B1":  4,  "U1":  5,  "D1":  6,
+                    "L3": -1,  "R3": -2,  "F3": -3,  "B3": -4,  "U3": -5,  "D3": -6 }
+                       )
+
    def string2moves(s):
        return [ RubikCube.str2move_map[w.strip()] for w in s.split(" ") ]
        
