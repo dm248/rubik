@@ -3,34 +3,31 @@
 # given w, w_a = a^(-1) w a, w_b = b^(-1) w b,  where a and b commute
 # must construct key = a^(-1) b^(-1) w b a
 #
-# => strategy, construct 'a' by bruteforce search given w_a and W
+# => strategy, construct 'a' by bruteforce search given w_a and w
 
 
 from rubik import *
 
+#
+# cursory look at the moves/states involved
+#
 
 def checkMoves(s):
    moves = RubikCube.string2moves(s)
-   print(s)
-   print(moves)
-   print(RubikCube.findOrder(moves))
+   print(s, "->",  moves)
+   print("order:", RubikCube.findOrder(moves))
 
 
 wStr = "U R2 F2 R2 D L2 B2 D' F2 D U2 L' R2 U B U F' L2 F R'"
 waStr = "B2 D2 U' R2 D U2 B2 L R2 D' U2 L D L2 B L' U L R'"
 wbStr = "L2 U L2 R2 U F2 D2 F2 R2 U R' U' L' B L2 R D B2 F' R'"
 
-#waStr = " ".join( ["R U L B", wStr, "B' L' U' R'"] )
-
 checkMoves(wStr)
 checkMoves(waStr)
 checkMoves(wbStr)
 
 
-# brute force a
-
-
-
+# move sequences (ints)
 seq_wa = tuple(RubikCube.string2moves(waStr))
 seq_wb = tuple(RubikCube.string2moves(wbStr))
 seq_w = tuple(RubikCube.string2moves(wStr))
@@ -40,6 +37,7 @@ print("#w_a:")
 cube.move(seq_wa)
 state_wa = cube.getState()
 perm_wa = cube.state2permutation()
+cube.print()
 print("#w:")
 cube.reset()
 cube.move(seq_w)
@@ -71,12 +69,15 @@ w_edges, w_corners = edgeAndCornerPerms(state_w)
 print("#w_b - edge and corner perms:")
 wb_edges, wb_corners = edgeAndCornerPerms(state_wb)
 
+# => w_a and w have the same edge positions and orientations, so 'a' very likely only affects corners
+
+
+
 # get corner perms of in a from wa, w
 corn_wa = [p[0]   for p in wa_corners]
 corn_w  = [p[0]   for p in w_corners]
 print(corn_wa, corn_w)
 
-import itertools
 
 # consider all corner permutations for 'a'
 # and check whether w_a = a^(-1) w a, i.e., a * w_a = w * a
@@ -87,6 +88,10 @@ import itertools
 # find corner permutation
 #
 print("#viable corner perms for a:")
+
+import itertools
+
+
 for p in itertools.permutations(range(8)):
    # p[i] is the new corner at 'i'  (so it moves from p[i] -> i)
    # construct w * a
@@ -153,9 +158,9 @@ print(cube.getCornerPermutation())
 # and check whether w_a = a^(-1) w a, i.e., a * w_a = w * a
 print("#viable corner twists for a:")
 
-def find_aflips(wa_corners):
-   wa_flipgoal = [j for (i,j) in wa_corners]
-   print("goal:", wa_flipgoal)
+def find_atwists(wa_corners):
+   wa_twistgoal = [j for (i,j) in wa_corners]
+   print("goal:", wa_twistgoal)
    for p in itertools.product(range(3), repeat = 8):
       # check parity
       if sum(p) % 3 != 0:
@@ -182,23 +187,23 @@ def find_aflips(wa_corners):
             moves += " " + RubikCube.invertStringMoves(m)
          p0[i] = p[i]
       #print(p, p0)
-      aflip_perm = cube.state2permutation()
+      atwist_perm = cube.state2permutation()
       # construct a^(-1) * w * a
       cube.reset()
-      cube.invPermute(aflip_perm)
+      cube.invPermute(atwist_perm)
       cube.invPermute(acycle_perm)  # apply corner cycle -> may change corner orientations too
       cube.permute(perm_w)
       cube.permute(acycle_perm)
-      cube.permute(aflip_perm)
+      cube.permute(atwist_perm)
       # check result
-      if [j for (i,j) in cube.getCornerPermutation()] == wa_flipgoal:
+      if [j for (i,j) in cube.getCornerPermutation()] == wa_twistgoal:
          print(p, moves)
          return p, moves
 
-_, aflip_str = find_aflips(wa_corners)
-print("aflip=", aflip_str)
+_, atwist_str = find_atwists(wa_corners)
+print("atwist=", atwist_str)
 
-a_str = acycle_str + aflip_str
+a_str = acycle_str + atwist_str
 print("a=", a_str)
 
 # verify result
