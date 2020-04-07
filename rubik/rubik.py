@@ -701,8 +701,8 @@ for rot in range(24):
          edge_cycles[i][k][j] = sinv
 
 
-# build all basic corner twists: neighbor twists -> 8*3 = 12
-#                                same-face diag twists -> 8*3 = 12
+# build all basic corner twists: neighbor twists -> 8*3 = 24
+#                                same-face diag twists -> 8*3 = 24
 #                                opposite corner twists -> 8*1 = 8
 for rot in range(24):
    moveset = (RubikCube.corner_twist_01_str, RubikCube.corner_twist_02_str, RubikCube.corner_twist_06_str)
@@ -722,9 +722,9 @@ for rot in range(24):
          corner_twists[j][i] = sinv
 
 
-# build all basic corner cycles: all 3 on same face -> 8 * 3 * 3 = 72 
-#                                ?
-#                                ?
+# build all basic corner cycles: all 3 on same face -> 8*3*6 = 144
+#                                two on same edge, two across same face -> 8*3*6 = 144
+#                                two across same face, another two across another face -> 8*(3/3)*6 = 48
 for rot in range(24):
    moveset = (RubikCube.corner_cycle_012_str, RubikCube.corner_cycle_015_str, RubikCube.corner_cycle_025_str)
    corner_cycles = RubikCube.corner_cycles
