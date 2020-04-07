@@ -1,4 +1,4 @@
-# solve Loo Key problem on angstromCTF 2020
+# solve Lo-Kee problem on angstromCTF 2020
 #
 # given w, w_a = a^(-1) w a, w_b = b^(-1) w b,  where a and b commute
 # must construct key = a^(-1) b^(-1) w b a
