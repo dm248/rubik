@@ -1,10 +1,7 @@
 # 3x3x3 Rubik Cube routines by dm (2020/03/18 - ...)
 #
 #
-# normally would use pypi.org/project/rubik-solver but it seems to be buggy
-# (e.g., it gives nonsensical solve if you start from the solved state)
-#
-# so do it ourselves, in similar notation as in there.
+# notation similar to pypi.org/project/rubik-solver
 #
 #
 # YBRGOW face colors: [Y]ellow ->0  [B]lue ->1  [R]ed ->2  [G]reen ->3  [O]range ->4  [W]hite -> 5
@@ -16,25 +13,23 @@
 #          40 (Back center)  = ORANGE
 #          49 (Down center)  = WHITE
 #
-# In Kociemba's code, YBRGOW -> ULFRBD, and facelets are ordered in URFDLB order (instead of ULFRBD)
+# Note: in Kociemba's code, YBRGOW -> ULFRBD, and facelet data is ordered in URFDLB order (instead of ULFRBD)
 #
-# state geometry:
+# State geometry:
 #
 #               ----------------
 #               | 0  | 1  | 2  | 
 #               ----------------   UP
 #               | 3  | 4  | 5  |
 #               ----------------
-#               | 6  | 7  | 8  |
-#   LEFT        ----------------    RIGHT          BACK
+#   LEFT        | 6  | 7  | 8  |     RIGHT          BACK
 #-------------------------------------------------------------
 #| 9  | 10 | 11 | 18 | 19 | 20 | 27 | 28 | 29 | 36 | 37 | 38 |
-#-------------------------------------------------------------
+#---------------------FRONT-----------------------------------
 #| 12 | 13 | 14 | 21 | 22 | 23 | 30 | 31 | 32 | 39 | 40 | 41 |
 #-------------------------------------------------------------
 #| 15 | 16 | 17 | 24 | 25 | 26 | 33 | 34 | 35 | 42 | 43 | 44 |
 #-------------------------------------------------------------
-#               ----------------
 #               | 45 | 46 | 47 |
 #               ----------------
 #               | 48 | 49 | 50 |  DOWN
@@ -43,13 +38,13 @@
 #               ----------------
 #
 #
-# corners:    0-1           edges:  +0+  
-#             | |  UP               3 1
-#           0-3-2-                +3+2+1+-
-#           | | |  FRONT          4 5 6 7  
-#           4-7-6-                +b+a+9+-       a = 10, b = 11
-#             | |  DOWN             b 9
-#             4-5                   +8+
+# Corners:    0-1           Edges:   +0+  
+#             | |  UP                3 1
+#           0-3-2-                 +3+2+1+-
+#           | | |  FRONT           4 5 6 7  
+#           4-7-6-                 +b+a+9+-       a = 10, b = 11
+#             | |  DOWN              b 9
+#             4-5                    +8+
 #
 #
 
@@ -71,38 +66,38 @@ class RubikCube():
    int2facecolor_map = {}
    for (k,v) in facecolor2int_map.items():  int2facecolor_map[v] = k
 
-   # state name -> state idx
-   state2int_map  = { 'a':  0, 'b':  1, 'c':  2, 'd':  3, 'e':  4,
-                      'f':  5, 'g':  6, 'h':  7, 'i':  8, 'j':  9,
-                      'k': 10, 'l': 11, 'm': 12, 'n': 13, 'o': 14,
-                      'p': 15, 'q': 16, 'r': 17, 's': 18, 't': 19,
-                      'u': 20, 'v': 21, 'w': 22, 'x': 23, 'y': 24,
-                      'z': 25, '0': 26, '1': 27, '2': 28, '3': 29,
-                      '4': 30, '5': 31, '6': 32, '7': 33, '8': 34,
-                      '9': 35, 'A': 36, 'B': 37, 'C': 38, 'D': 39,
-                      'E': 40, 'F': 41, 'G': 42, 'H': 43, 'I': 44,
-                      'J': 45, 'K': 46, 'L': 47, 'M': 48, 'N': 49,
-                      'O': 50, 'P': 51, 'Q': 52, 'R': 53
-                    }
+   # facelet name -> facelet idx
+   facelet2int_map  = { 'a':  0, 'b':  1, 'c':  2, 'd':  3, 'e':  4,
+                        'f':  5, 'g':  6, 'h':  7, 'i':  8, 'j':  9,
+                        'k': 10, 'l': 11, 'm': 12, 'n': 13, 'o': 14,
+                        'p': 15, 'q': 16, 'r': 17, 's': 18, 't': 19,
+                        'u': 20, 'v': 21, 'w': 22, 'x': 23, 'y': 24,
+                        'z': 25, '0': 26, '1': 27, '2': 28, '3': 29,
+                        '4': 30, '5': 31, '6': 32, '7': 33, '8': 34,
+                        '9': 35, 'A': 36, 'B': 37, 'C': 38, 'D': 39,
+                        'E': 40, 'F': 41, 'G': 42, 'H': 43, 'I': 44,
+                        'J': 45, 'K': 46, 'L': 47, 'M': 48, 'N': 49,
+                        'O': 50, 'P': 51, 'Q': 52, 'R': 53
+                      }
 
-   # state idx -> state name
-   int2state_map = {}
-   for (k,v) in state2int_map.items(): int2state_map[v] = k
+   # facelet idx -> facelet name
+   int2facelet_map = {}
+   for (k,v) in facelet2int_map.items(): int2facelet_map[v] = k
 
-   # state idx -> face idx
-   def idx2face(i):
+   # facelet idx -> face idx
+   def flidx2face(i):
       return (i // 9)
 
-   # state idx -> face color
-   int2state_map_FACES = {}
-   for i in range(n): int2state_map_FACES[i] = int2facecolor_map[idx2face(i)]
+   # facelet idx -> face color
+   flidx2face_map = {}
+   for i in range(n): flidx2face_map[i] = int2facecolor_map[flidx2face(i)]
    
-   # state name to integer value
-   def color2int(c, c2imap = state2int_map):
+   # facelet/color name to integer value
+   def color2int(c, c2imap = facelet2int_map):
       return c2imap.get(c, 0)
 
-   # color value to name
-   def int2color(v, i2cmap = int2state_map):
+   # facelet idx to facelet/color name
+   def int2color(v, i2cmap = int2facelet_map):
       return i2cmap.get(v, "*")
 
    ###
@@ -123,18 +118,18 @@ class RubikCube():
                     )
 
    color2center_map = {}
-   for i in center_indices:   color2center_map[idx2face(i)] = i
+   for i in center_indices:   color2center_map[flidx2face(i)] = i
 
    color2edge_map = {}
    for (i,j) in edge_indices:
-      fi,fj = idx2face(i), idx2face(j)
+      fi,fj = flidx2face(i), flidx2face(j)
       color2edge_map[(fi,fj)] = (i,j)
       color2edge_map[(fj,fi)] = (j,i)
 
-   # FIXME: can we avoid spelling out each permutation?
+   # FIXME: can we avoid spelling out each permutation? - use itertools
    color2corner_map = {}
    for (i,j,k) in corner_indices:
-      fi,fj,fk = idx2face(i), idx2face(j), idx2face(k)
+      fi,fj,fk = flidx2face(i), flidx2face(j), flidx2face(k)  
       color2corner_map[(fi,fj,fk)] = (i,j,k)
       color2corner_map[(fi,fk,fj)] = (i,k,j)
       color2corner_map[(fj,fi,fk)] = (j,i,k)
@@ -215,9 +210,9 @@ class RubikCube():
    # print state as string - in various formats
    def toString(self, format = 0):
       if format == RubikCube.FORMAT_DEFAULT:
-         return "".join( [ RubikCube.int2color(v, RubikCube.int2state_map) for v in self.state ]  )
+         return "".join( [ RubikCube.int2color(v, RubikCube.int2facelet_map) for v in self.state ]  )
       elif format == RubikCube.FORMAT_FACESONLY:
-         return "".join( [ RubikCube.int2color(v, RubikCube.int2state_map_FACES) for v in self.state ]  )
+         return "".join( [ RubikCube.int2color(v, RubikCube.flidx2face_map) for v in self.state ]  )
       elif format == RubikCube.FORMAT_KOCIEMBA:  # Kociemba's
          ret = self.toString(RubikCube.FORMAT_FACESONLY)
          ret = ret[:9] + ret[27:36] + ret[18:27] + ret[45:] + ret[9:18] + ret[36:45]   # URFDLB face order
@@ -227,7 +222,7 @@ class RubikCube():
          return "".join( [RubikCube.color_remap_RCS[c] for c in ret ] )
 
    def _range2string(self, start, end, facesonly = False):
-      i2cmap = RubikCube.int2state_map  if not facesonly  else RubikCube.int2state_map_FACES
+      i2cmap = RubikCube.int2facelet_map  if not facesonly  else RubikCube.flidx2face_map
       return "".join( [ RubikCube.int2color(v, i2cmap) for v in self.state[start:end] ] )
 
    def print(self, facesonly = False):
@@ -447,7 +442,7 @@ class RubikCube():
          for i in range(n):
             if lst[i] != -1:
                raise("Duplicate symbol " + str(len(s)))
-            lst[i] = RubikCube.state2int_map[s[i]]
+            lst[i] = RubikCube.facelet2int_map[s[i]]
       if RubikCube._areCentersBad(lst):
          raise("Centers wrong")
       return tuple(lst) 
@@ -542,9 +537,8 @@ class RubikCube():
                   "DFLUBR", "DLBURF", "DBRUFL", "DRFULB"    #D->L, then FLBR rotate
                 )
 
-   rigid_rotation_move_str_map = [None]*24
+   rigid_rotation_move_str_map = [{} for _ in range(24)]
    for rot in range(24):
-      rigid_rotation_move_str_map[rot] = {}
       remap = rigid_rotation_mapped_moves
       for i in range(6):
          rigid_rotation_move_str_map[rot][remap[0][i]] = remap[rot][i]
@@ -559,9 +553,8 @@ class RubikCube():
 
    # elementary edge and corner moves
    #
-   # based on ideas from "Group Theory and the Rubik's Cube" by Janet Chen
+   # based in part on "Group Theory and the Rubik's Cube" by Janet Chen
    #   http://people.math.harvard.edu/~jjchen/docs/Group%20Theory%20and%20the%20Rubik's%20Cube.pdf
-   # and also using https://rubiks-cube-solver.com
    #
    # Parity of (unoriented) edge permutations and (unoriented) corner permutations must match.
    # (e.g., if precisely two edges are swapped (->odd), then at least two corners must be swapped as well.)
