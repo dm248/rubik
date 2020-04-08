@@ -119,7 +119,7 @@ for p in itertools.permutations(range(8)):
 
 
 # build corner rotations for a = (0, 3, 1, 6, 4, 2, 5, 7) from 3-cycles
-print("build a (corner cycles):")
+print("build b (edge flips):")
 
 pgoal = (0, 3, 1, 6, 4, 2, 5, 7)
 acycle_str = []
@@ -271,7 +271,7 @@ print(edge_wb, edge_w)
 
 # find corner permutation
 #
-print("#viable corner perms for b:")
+print("#viable edge perms for b:")
 
 
 pgoal = None
@@ -425,7 +425,7 @@ print(key2_str)
 print("flag=", key1_str.replace(" ",""), key2_str == key1_str)
 
 
-# same as solving for 'a', just longer
+# same as solving for 'a', just takes longer
 
 
 exit(0)
