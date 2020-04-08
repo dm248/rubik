@@ -356,7 +356,8 @@ class RubikCube():
                11: _moveL2, 12: _moveR2, 13: _moveF2, 14: _moveB2, 15: _moveU2, 16: _moveD2  # double moves
               }
 
-   def move(self, sequence, count = 1):   # apply sequence of moves
+   def move(self, mv, count = 1):   # apply moves (sequence or str)
+      sequence = mv   if not isinstance(mv, str)  else   RubikCube.string2moves(mv)
       if count < 0: # interpret negative counts as inverse 
          sequence = RubikCube.invertMoves(sequence)
          count = -count
@@ -367,25 +368,19 @@ class RubikCube():
             m = self.int2move[code]   # fetch move
             m(self)                   # apply it
 
-   def stringMove(self, moves: str, count = 1):
-      sequence = RubikCube.string2moves(moves)
-      self.move(sequence, count)
- 
-   def invertMoves(sequence):   # invert move sequence
+   def invertMoves(mv):   # invert moves
+      sequence = mv   if not isinstance(mv, str)  else   RubikCube.string2moves(mv)
       return [ c if c > 10  else -c   for c in sequence[::-1] ]
 
-   def invMove(self, sequence):  # apply inverse of moves
-      self.move(RubikCube.invertMoves(sequence))
+   def invMove(self, mv):  # apply inverse of moves
+      self.move(RubikCube.invertMoves(mv))
 
-   # whether two move sequences are equivalent
-   def areEqualMoves(seq1, seq2):
+   # whether two moves (sequence or string) are equivalent
+   def areEqualMoves(mv1, mv2):
       cube = RubikCube()
-      cube.move(seq1)
-      cube.invMove(seq2)
+      cube.move(mv1)
+      cube.invMove(mv2)
       return cube.isReset()
-
-   def areEqualStringMoves(s1, s2):
-      return RubikCube.areEqualMoves(RubikCube.string2moves(s1), RubikCube.string2moves(s2))
 
 
    # parsing sequences
@@ -408,8 +403,8 @@ class RubikCube():
    def moves2string(seq):
        return " ".join( [ RubikCube.move2str_map[m] for m in seq ] )
 
-   def invertStringMoves(s):
-      invseq = RubikCube.invertMoves( RubikCube.string2moves(s) )
+   def invertMoves2String(mv):
+      invseq = RubikCube.invertMoves(mv)
       return RubikCube.moves2string(invseq)
 
    def _areCentersBad(tpl):
@@ -418,6 +413,7 @@ class RubikCube():
             return True
       return False   
 
+   # convert a 27-character string to a cube state
    def string2state(s): # FIXME: does not check twist/flip parity
       n = RubikCube.n
       if len(s) != n:
@@ -466,23 +462,20 @@ class RubikCube():
       for i in range(self.n):
          self.state[tpl[i]] = state2[i]
 
-   # give permutation that reaches current state from solved cube
+   # give permutation that reaches the current state from the solved cube
    def state2permutation(self):
       return tuple( self.getState() )
 
-   # convert a sequence of moves to a permutation
-   def moves2permutation(sequence):
+   # convert moves (sequence/string) to a permutation
+   def moves2permutation(mv):
       cube = RubikCube()
-      cube.move(sequence)
+      cube.move(mv)
       return cube.state2permutation()
 
-   def stringMoves2permutation(s: str):
-      return RubikCube.moves2permutation(RubikCube.string2moves(s))
-
-   # convert a sequence of moves to a state (starting from the solved cube)
-   def moves2state(sequence):
+   # convert moves (sequence/string) to a state - starting from the solved cube
+   def moves2state(mv):
       cube = RubikCube()
-      cube.move(sequence)
+      cube.move(mv)
       return cube.getState()
 
    # read off edge permutations
@@ -507,12 +500,12 @@ class RubikCube():
    # group stuff
    #
 
-   # find order of a sequence - apply it until we get back original cube
-   def findOrder(sequence):
+   # find order of moves (sequence/string) - apply it until we get back original cube
+   def findOrder(mv):
       cube = RubikCube()
       # convert move to permutation
       cube.reset()                
-      cube.move(sequence)
+      cube.move(mv)
       perm = cube.state2permutation()
       # apply perm repeatedly   
       order = 1
@@ -633,10 +626,24 @@ class RubikCube():
    # - [i][j] gives a move with twist=1 for the i-th corner, twist=2 for the j-th one
    corner_twists = [ [None]*8  for _ in range(8) ]
 
+   ##
+   # static methods - converted only as last step so that we could use them inside class def above
+   ##
+   invertMoves        = staticmethod(invertMoves)
+   areEqualMoves      = staticmethod(areEqualMoves)
+   string2moves       = staticmethod(string2moves)
+   moves2string       = staticmethod(moves2string)
+   invertMoves2String = staticmethod(invertMoves2String)
+   string2state       = staticmethod(string2state)
+   moves2permutation  = staticmethod(moves2permutation)
+   moves2state        = staticmethod(moves2state)
+   findOrder          = staticmethod(findOrder)
+
 	
 ####
-# additional initialization
+# initialization that did not fit inside class definition
 ####
+
 
 # build all basic edge flips: neighbors       -> 12*4 = 48
 #                             across face     -> 12*2 = 24
@@ -649,15 +656,16 @@ for rot in range(24):
               RubikCube.edge_flip_0a_str)
    edge_flips = RubikCube.edge_flips
    for s in moveset:
-      cube = RubikCube()
       s = RubikCube.rotateMoveString(s, rot)
-      cube.stringMove(s)
+      seq = RubikCube.string2moves(s)
+      cube = RubikCube()
+      cube.move(seq)
       p = cube.getEdgePermutation()
       lst = [ i   for i in range(12)   if p[i][1] != 0 ]
       i,j = lst[0],lst[1]
       if edge_flips[i][j] == None:
-         edge_flips[i][j] = s
-         edge_flips[j][i] = s
+         edge_flips[i][j] = seq
+         edge_flips[j][i] = seq
 
 
 # build all basic edge cycles: all 3 on same face -> 12 * 2 * 6 = 144 
@@ -682,10 +690,11 @@ for rot in range(24):
              )
    edge_cycles = RubikCube.edge_cycles
    for s in moveset:
-      cube = RubikCube()
       s = RubikCube.rotateMoveString(s, rot)
-      sinv = RubikCube.invertStringMoves(s) #inverse cycle
-      cube.stringMove(s)
+      seq = RubikCube.string2moves(s)
+      seqinv = RubikCube.invertMoves(seq) #inverse cycle
+      cube = RubikCube()
+      cube.move(seq)
       p = cube.getEdgePermutation()
       lst = [ i for i in range(12)   if p[i][0] != i ]  # reconstruct cycle ijk->jki
       lst[1] = p[lst[2]][0]  
@@ -693,12 +702,12 @@ for rot in range(24):
       #print(rot, p, lst)
       i,j,k = lst[0],lst[1],lst[2]        
       if edge_cycles[i][j][k] == None:   # store cycle and inverse
-         edge_cycles[i][j][k] = s
-         edge_cycles[j][k][i] = s
-         edge_cycles[k][i][j] = s
-         edge_cycles[k][j][i] = sinv
-         edge_cycles[j][i][k] = sinv
-         edge_cycles[i][k][j] = sinv
+         edge_cycles[i][j][k] = seq
+         edge_cycles[j][k][i] = seq
+         edge_cycles[k][i][j] = seq
+         edge_cycles[k][j][i] = seqinv
+         edge_cycles[j][i][k] = seqinv
+         edge_cycles[i][k][j] = seqinv
 
 
 # build all basic corner twists: neighbor twists -> 8*3 = 24
@@ -708,18 +717,19 @@ for rot in range(24):
    moveset = (RubikCube.corner_twist_01_str, RubikCube.corner_twist_02_str, RubikCube.corner_twist_06_str)
    corner_twists = RubikCube.corner_twists
    for s in moveset:
-      cube = RubikCube()
       s = RubikCube.rotateMoveString(s, rot)
-      sinv = RubikCube.invertStringMoves(s) #inverse cycle
-      cube.stringMove(s)
+      seq = RubikCube.string2moves(s)
+      seqinv = RubikCube.invertMoves(seq) #inverse cycle
+      cube = RubikCube()
+      cube.move(seq)
       p = cube.getCornerPermutation()
       lst = [ i   for i in range(8)   if p[i][1] != 0 ]
       i,j = lst[0],lst[1]
       if p[i][1] != 1:
-         s, sinv = sinv, s
+         seq, seqinv = seqinv, seq
       if corner_twists[i][j] == None:
-         corner_twists[i][j] = s
-         corner_twists[j][i] = sinv
+         corner_twists[i][j] = seq
+         corner_twists[j][i] = seqinv
 
 
 # build all basic corner cycles: all 3 on same face -> 8*3*6 = 144
@@ -729,10 +739,11 @@ for rot in range(24):
    moveset = (RubikCube.corner_cycle_012_str, RubikCube.corner_cycle_015_str, RubikCube.corner_cycle_025_str)
    corner_cycles = RubikCube.corner_cycles
    for s in moveset:
-      cube = RubikCube()
       s = RubikCube.rotateMoveString(s, rot)
-      sinv = RubikCube.invertStringMoves(s) #inverse cycle
-      cube.stringMove(s)
+      seq = RubikCube.string2moves(s)
+      seqinv = RubikCube.invertMoves(seq) #inverse cycle
+      cube = RubikCube()
+      cube.move(seq)
       p = cube.getCornerPermutation()
       lst = [ i for i in range(8)   if p[i][0] != i ]  # reconstruct cycle ijk->jki
       lst[1] = p[lst[2]][0]  
@@ -740,18 +751,19 @@ for rot in range(24):
       #print(rot, p, lst)
       i,j,k = lst[0],lst[1],lst[2]        
       if corner_cycles[i][j][k] == None:   # store cycle and inverse
-         corner_cycles[i][j][k] = s
-         corner_cycles[j][k][i] = s
-         corner_cycles[k][i][j] = s
-         corner_cycles[k][j][i] = sinv
-         corner_cycles[j][i][k] = sinv
-         corner_cycles[i][k][j] = sinv
+         corner_cycles[i][j][k] = seq
+         corner_cycles[j][k][i] = seq
+         corner_cycles[k][i][j] = seq
+         corner_cycles[k][j][i] = seqinv
+         corner_cycles[j][i][k] = seqinv
+         corner_cycles[i][k][j] = seqinv
 
 
 
-#
+
+###
 # TESTS
-# 
+###
 
 
 def TESTsuite(format = RubikCube.FORMAT_DEFAULT):
@@ -834,11 +846,11 @@ def TESTsuite(format = RubikCube.FORMAT_DEFAULT):
    print("rigid rotations:")
    for rot in range(24):
       cube.reset()
-      cube.stringMove(RubikCube.rotateMoveString(RubikCube.edge_cycle_012_str, rot))
+      cube.move(RubikCube.rotateMoveString(RubikCube.edge_cycle_012_str, rot))
       print(rot, cube.getEdgePermutation())
    for rot in range(24):
       cube.reset()
-      cube.stringMove(RubikCube.rotateMoveString(RubikCube.corner_cycle_012_str, rot))
+      cube.move(RubikCube.rotateMoveString(RubikCube.corner_cycle_012_str, rot))
       print(rot, cube.getCornerPermutation())
 
    # (group) order of moves

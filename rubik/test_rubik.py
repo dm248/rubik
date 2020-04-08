@@ -21,7 +21,7 @@ def test_tables2(tbl, edge = True):
          if s != None:
             cnt += 1
             cube.reset()
-            cube.stringMove(s)
+            cube.move(s)
             p = cube.getEdgePermutation()   if edge   else  cube.getCornerPermutation()
             bad = ( p[i][1] != 1 or p[j][1] == 0)
          if bad:
@@ -40,7 +40,7 @@ def test_tables3(tbl, edge = True):
             bad = (s != None)  if j == i or k == j or k == i   else  (s == None) 
             if s != None:
                cube = RubikCube()
-               cube.stringMove(s)
+               cube.move(s)
                p = cube.getEdgePermutation()   if edge   else  cube.getCornerPermutation()
                cnt += 1
                bad = (p[i][0] != k or p[j][0] != i or p[k][0] != j)

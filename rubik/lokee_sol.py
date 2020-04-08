@@ -130,7 +130,9 @@ for i in range(8):
    idx1, idx2 = p0.index(pgoal[i]), i     # construct a cycle that fills i-th position using tail of p0
    idx3 = i + 1   if idx1 != i + 1   else i + 2
    print(p0, idx1, idx2, idx3)
-   acycle_str.append(RubikCube.corner_cycles[idx1][idx2][idx3])
+   mv = RubikCube.corner_cycles[idx1][idx2][idx3]
+   print(mv)
+   acycle_str.append(RubikCube.moves2string(mv))
    p0copy = tuple(p0)     # apply to p0
    p0[idx1] = p0copy[idx3]
    p0[idx2] = p0copy[idx1]
@@ -139,15 +141,15 @@ for i in range(8):
 acycle_str = " ".join(acycle_str)
 print(acycle_str)     # 256+123 would have been shorter but this works too
 cube.reset()
-cube.stringMove(acycle_str)
+cube.move(acycle_str)
 print( cube.toString(RubikCube.FORMAT_KOCIEMBA) )  #UUUUUUDUUBRLRRRBRUFFRFFFDFRLDDDDDDDFLLRLLLLLFFBBBBBRBB
 # reduce via Kociemba alg 
-acycle_str = RubikCube.invertStringMoves("D2 F1 U1 B2 U3 F1 D1 R2 B2 R2 B2 U3 R2 D1 F2 U1")
+acycle_str = RubikCube.invertMoves2String("D2 F1 U1 B2 U3 F1 D1 R2 B2 R2 B2 U3 R2 D1 F2 U1")
 print("acycle=", acycle_str)
 
 # verify that corner positions work
 cube.reset()
-acycle_perm = RubikCube.stringMoves2permutation(acycle_str)
+acycle_perm = RubikCube.moves2permutation(acycle_str)
 cube.permute(acycle_perm)
 # check a^-1 w a
 print("wa corners:", wa_corners)
@@ -179,17 +181,17 @@ def find_atwists(wa_corners):
          if p[i] == p0[i]:  continue
          m = RubikCube.corner_twists[i][i+1]
          cube2 = RubikCube()
-         cube2.stringMove(m)
+         cube2.move(m)
          corners = cube2.getCornerPermutation()
          #print(i, corners, p0)
          if p[i] == (corners[i][1] + p0[i]) % 3:   # if the move works
             p0[i + 1] = (p0[i + 1] + corners[i + 1][1]) % 3
-            cube.stringMove(m)
-            moves += " " + m
+            cube.move(m)
+            moves += " " + RubikCube.moves2string(m)
          else:                     # otherwise use inverse
             p0[i + 1] = (p0[i + 1] - corners[i + 1][1]) % 3
-            cube.stringMove(m, -1)
-            moves += " " + RubikCube.invertStringMoves(m)
+            cube.move(m, -1)
+            moves += " " + RubikCube.invertMoves2String(m)
          p0[i] = p[i]
       #print(p, p0)
       atwist_perm = cube.state2permutation()
@@ -213,37 +215,37 @@ print("a=", a_str)
 
 # verify result
 cube.reset()
-cube.stringMove(a_str, -1)
+cube.move(a_str, -1)
 cube.permute(perm_w)
-cube.stringMove(a_str)
+cube.move(a_str)
 cube.invPermute(perm_wa)
 print(cube.isReset())
 
 # compactify result for a_str
 
 cube.reset()
-cube.stringMove(a_str)
+cube.move(a_str)
 print("a_state:", cube.toString(RubikCube.FORMAT_KOCIEMBA))
     #UUFUUUDUBRRURRRBRFFFUFFFLFRFDDDDDBDRLLRLLLDLDLBBBBBUBL
     #-> B2 U1 F2 U2 F2 D3 L2 U1 L2 U2 F3 L2 F1 D1 U3 B3 U3 B3
-a1_str = RubikCube.invertStringMoves("B2 U1 F2 U2 F2 D3 L2 U1 L2 U2 F3 L2 F1 D1 U3 B3 U3 B3")
-print("simplified a=", a1_str, RubikCube.areEqualStringMoves(a_str, a1_str))
+a1_str = RubikCube.invertMoves2String("B2 U1 F2 U2 F2 D3 L2 U1 L2 U2 F3 L2 F1 D1 U3 B3 U3 B3")
+print("simplified a=", a1_str, RubikCube.areEqualMoves(a_str, a1_str))
 
 a2_str = "B U B U D' F' L2 F U2 L2 U' L2 D F2 U2 F2 U' B2"
 
 # compute secret key a^(-1) w_b a
 
-key_str = RubikCube.invertStringMoves(a2_str) + " " + wbStr + " " + a2_str
+key_str = RubikCube.invertMoves2String(a2_str) + " " + wbStr + " " + a2_str
 print(key_str)
 
 # simplify it
 cube.reset()
-cube.stringMove(key_str)
+cube.move(key_str)
 print("key_state:", cube.toString(RubikCube.FORMAT_KOCIEMBA))
    #RRDBUUURFRBFLRFLFUBFDBFURRBBBDRDLULBFLRFLDLUDLDUDBULDF
    #-> R1 B2 D2 F1 R2 D1 L3 B3 R1 B1 L2 U3 R2 U3 B2 L2 U3 F2 D1 F2
 
-key1_str = RubikCube.invertStringMoves("R1 B2 D2 F1 R2 D1 L3 B3 R1 B1 L2 U3 R2 U3 B2 L2 U3 F2 D1 F2")
+key1_str = RubikCube.invertMoves2String("R1 B2 D2 F1 R2 D1 L3 B3 R1 B1 L2 U3 R2 U3 B2 L2 U3 F2 D1 F2")
 print(key1_str)
 print("flag=", key1_str.replace(" ",""))
 
@@ -314,7 +316,8 @@ for i in range(12):
    idx1, idx2 = p0.index(pgoal[i]), i     # construct a cycle that fills i-th position using tail of p0
    idx3 = i + 1   if idx1 != i + 1  else i + 2
    print(p0, idx1, idx2, idx3)
-   bcycle_str.append(RubikCube.edge_cycles[idx1][idx2][idx3])
+   seq = RubikCube.edge_cycles[idx1][idx2][idx3]
+   bcycle_str.append(RubikCube.moves2string(seq))
    p0copy = tuple(p0)     # apply to p0
    p0[idx1] = p0copy[idx3]
    p0[idx2] = p0copy[idx1]
@@ -325,7 +328,7 @@ print("bcycle=", bcycle_str)     # 256+123 would have been shorter but this work
 
 # verify that edge positions work
 cube.reset()
-bcycle_perm = RubikCube.stringMoves2permutation(bcycle_str)
+bcycle_perm = RubikCube.moves2permutation(bcycle_str)
 cube.permute(bcycle_perm)
 # check b^-1 w b
 print("wb edges:", wb_edges)
@@ -357,11 +360,11 @@ def find_bflips(wb_edges):
          if p[i] == p0[i]:  continue
          m = RubikCube.edge_flips[i][i+1]
          cube2 = RubikCube()
-         cube2.stringMove(m)
+         cube2.move(m)
          edges = cube2.getEdgePermutation()
          #print(i, edges, p0)
-         cube.stringMove(m)
-         moves += " " + m
+         cube.move(m)
+         moves += " " + RubikCube.moves2string(m)
          p0[i] = p[i]
          p0[i + 1] = (p0[i + 1] + edges[i + 1][1]) & 1
       #print(p, p0)
@@ -387,9 +390,9 @@ print("b=", b_str)
 
 # verify result
 cube.reset()
-cube.stringMove(b_str, -1)
+cube.move(b_str, -1)
 cube.permute(perm_w)
-cube.stringMove(b_str)
+cube.move(b_str)
 cube.invPermute(perm_wb)
 print(cube.isReset())
 
@@ -397,30 +400,30 @@ print(cube.isReset())
 # compactify result for b_str
 
 cube.reset()
-cube.stringMove(b_str)
+cube.move(b_str)
 print("b_state:", cube.toString(RubikCube.FORMAT_KOCIEMBA))
     #UUURULUUURBRDRDRLRFBFLFRFDFDFDRDUDUDLBLDLFLFLBRBLBBBFB
     #-> B1 F1 L2 U2 L2 D2 B2 R2 U2 B1 L3 D1 B1 L2 U1 F1 D1 U2 L1 R2
 
-b1_str = RubikCube.invertStringMoves("B1 F1 L2 U2 L2 D2 B2 R2 U2 B1 L3 D1 B1 L2 U1 F1 D1 U2 L1 R2")
-print("simplified b=", b1_str, RubikCube.areEqualStringMoves(b_str, b1_str))
+b1_str = RubikCube.invertMoves2String("B1 F1 L2 U2 L2 D2 B2 R2 U2 B1 L3 D1 B1 L2 U1 F1 D1 U2 L1 R2")
+print("simplified b=", b1_str, RubikCube.areEqualMoves(b_str, b1_str))
 
 b2_str = "R2 L' U2 D' F' U' L2 B' D' L B' U2 R2 B2 D2 L2 U2 L2 F' B'"
 
 
 # compute secret key b^(-1) w_a b
 
-key2_str = RubikCube.invertStringMoves(b2_str) + " " + waStr + " " + b2_str
+key2_str = RubikCube.invertMoves2String(b2_str) + " " + waStr + " " + b2_str
 print(key2_str)
 
 # simplify it
 cube.reset()
-cube.stringMove(key2_str)
+cube.move(key2_str)
 print("key2_state:", cube.toString(RubikCube.FORMAT_KOCIEMBA))
    #RRDBUUURFRBFLRFLFUBFDBFURRBBBDRDLULBFLRFLDLUDLDUDBULDF
    #-> R1 B2 D2 F1 R2 D1 L3 B3 R1 B1 L2 U3 R2 U3 B2 L2 U3 F2 D1 F2
 
-key2_str = RubikCube.invertStringMoves("R1 B2 D2 F1 R2 D1 L3 B3 R1 B1 L2 U3 R2 U3 B2 L2 U3 F2 D1 F2")
+key2_str = RubikCube.invertMoves2String("R1 B2 D2 F1 R2 D1 L3 B3 R1 B1 L2 U3 R2 U3 B2 L2 U3 F2 D1 F2")
 print(key2_str)
 print("flag=", key1_str.replace(" ",""), key2_str == key1_str)
 
