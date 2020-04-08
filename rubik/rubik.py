@@ -441,7 +441,7 @@ class RubikCube():
          for (i, j, k) in RubikCube.corner_indices:
             (vi, vj, vk) = RubikCube.color2corner_map[(lst[i], lst[j], lst[k])]
             lst[i], lst[j], lst[k] = vi, vj, vk
-      # otherwise, assume 27 cells a-z,0-9,A-R
+      # otherwise, assume 27 facelets a-z,0-9,A-R
       else:  
          lst = [-1] * n
          for i in range(n):
@@ -508,7 +508,6 @@ class RubikCube():
    def findOrder(mv):
       cube = RubikCube()
       # convert move to permutation
-      cube.reset()                
       cube.move(mv)
       perm = cube.state2permutation()
       # apply perm repeatedly   
