@@ -119,7 +119,7 @@ for p in itertools.permutations(range(8)):
 
 
 # build corner rotations for a = (0, 3, 1, 6, 4, 2, 5, 7) from 3-cycles
-print("build b (edge flips):")
+print("build a (corner cycles):")
 
 pgoal = (0, 3, 1, 6, 4, 2, 5, 7)
 acycle_str = []
@@ -131,7 +131,7 @@ for i in range(8):
    idx3 = i + 1   if idx1 != i + 1   else i + 2
    print(p0, idx1, idx2, idx3)
    mv = RubikCube.corner_cycles[idx1][idx2][idx3]
-   print(mv)
+   print(RubikCube.moves2string(mv))
    acycle_str.append(RubikCube.moves2string(mv))
    p0copy = tuple(p0)     # apply to p0
    p0[idx1] = p0copy[idx3]
@@ -304,7 +304,7 @@ for p in itertools.permutations(range(12)):
 
 
 # build edge flips for b = (0, 3, 1, 6, 4, 2, 5, 7) from 3-cycles
-print("build b (edge flips):", pgoal)
+print("build b (edge cycles):", pgoal)
 
 
 pgoal = (1, 4, 0, 7, 8, 5, 9, 11, 2, 3, 10, 6)

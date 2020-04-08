@@ -345,7 +345,7 @@ class RubikCube():
        self._moveD(dir = 2)    # D + D
 
    #
-   # sequence of basic moves (L->1 R->2 F->3 B->4 U->5 D->6)
+   # moves - sequence of basic moves (L->1 R->2 F->3 B->4 U->5 D->6)
    #
    # NOTE: we apply moves in left-to-right order
    #       whereas in operator notation, things would go from right to left
@@ -356,7 +356,8 @@ class RubikCube():
                11: _moveL2, 12: _moveR2, 13: _moveF2, 14: _moveB2, 15: _moveU2, 16: _moveD2  # double moves
               }
 
-   def move(self, mv, count = 1):   # apply moves (sequence or str)
+   # apply moves (sequence or string)
+   def move(self, mv, count = 1):
       sequence = mv   if not isinstance(mv, str)  else   RubikCube.string2moves(mv)
       if count < 0: # interpret negative counts as inverse 
          sequence = RubikCube.invertMoves(sequence)
@@ -368,11 +369,13 @@ class RubikCube():
             m = self.int2move[code]   # fetch move
             m(self)                   # apply it
 
-   def invertMoves(mv):   # invert moves
+   # return the inverse of moves (sequence/string) as a sequence
+   def invertMoves(mv):   
       sequence = mv   if not isinstance(mv, str)  else   RubikCube.string2moves(mv)
       return [ c if c > 10  else -c   for c in sequence[::-1] ]
 
-   def invMove(self, mv):  # apply inverse of moves
+   # apply the inverse of moves (sequence/string)
+   def invMove(self, mv):  
       self.move(RubikCube.invertMoves(mv))
 
    # whether two moves (sequence or string) are equivalent
@@ -383,8 +386,8 @@ class RubikCube():
       return cube.isReset()
 
 
-   # parsing sequences
-   
+   # parsing sequences and states
+    
    str2move_map = { "L":   1,  "R":   2,  "F":   3,  "B":   4,  "U":   5,  "D":   6,
                     "L'": -1,  "R'": -2,  "F'": -3,  "B'": -4,  "U'": -5,  "D'": -6,
                     "L2": 11,  "R2": 12,  "F2": 13,  "B2": 14,  "U2": 15,  "D2": 16
@@ -403,6 +406,7 @@ class RubikCube():
    def moves2string(seq):
        return " ".join( [ RubikCube.move2str_map[m] for m in seq ] )
 
+   # return the inverse of moves (sequence/string) as a string
    def invertMoves2String(mv):
       invseq = RubikCube.invertMoves(mv)
       return RubikCube.moves2string(invseq)
@@ -588,6 +592,7 @@ class RubikCube():
    edge_cycle_06b_str = "R2 D R2 U R2 D' U F2 U' B' D L D2 L' B F2 R' U'"
 
    # storage for all 12*11*10 = 1320 three-edge cycles - initialized after class code
+   # - [i][j][k] gives a move sequence that cycles ijk -> kij
    edge_cycles = [ [ [None]*12 for __ in range(12) ] for _ in range(12) ]
 
    # flip orientations of edges 0,1 (neighbors), 0,2 (across same face), 
@@ -599,7 +604,7 @@ class RubikCube():
    edge_flip_0a_str = "U B2 L2 D' F2 L2 B2 U2 R2 U' L R' F R2 F L' R' U'"
 
    # storage for all 12 * 11 = 66*2 two-edge flips - initialized after class code
-   # - [i][j] gives a move that flips the orientation of the i-th and j-th edges
+   # - [i][j] gives a move sequence that flips the orientation of the i-th and j-th edges
    edge_flips = [ [None]*12  for _ in range(12) ]
 
    # basic 3-corner cycles that generate even corner permutations
@@ -612,7 +617,7 @@ class RubikCube():
    corner_cycle_025_str = "F2 L2 F' R2 U2 B D2 R2 B' F D' F' U2 F D' F' R2 F'"
 
    # storage for all 8*7*6 = 336 three-corner cycles - initialized after class code
-   # - [i][j][k] gives a move that cycles ijk -> kij
+   # - [i][j][k] gives a move sequence that cycles ijk -> kij
    corner_cycles = [ [ [None]*8 for __ in range(8) ] for _ in range(8) ]
 
    # basic 2-corner twists that generate corner orientations
@@ -623,7 +628,7 @@ class RubikCube():
    corner_twist_06_str = "U B U' F2 U B' U' F2 D B2 D' F2 D B2 D' F2"
 
    # storage for all 8 * 7 = 28*2 two-corner twists - initialized after class code
-   # - [i][j] gives a move with twist=1 for the i-th corner, twist=2 for the j-th one
+   # - [i][j] gives a move sequence with twist=1 for the i-th corner, twist=2 for the j-th one
    corner_twists = [ [None]*8  for _ in range(8) ]
 
    ##
