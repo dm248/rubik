@@ -263,13 +263,13 @@ edge_w  = [p[0]   for p in w_edges]
 print(edge_wb, edge_w)
 
 
-# consider all corner permutations for 'b'
+# consider all edge permutations for 'b'
 # and check whether w_b = b^(-1) w b, i.e., b * w_b = w * b
 #
-# first move corners into position, then twist them the right way
+# first move edges into position, then twist them the right way
 #
 
-# find corner permutation
+# find edge permutation
 #
 print("#viable edge perms for b:")
 
@@ -288,7 +288,7 @@ for p in itertools.permutations(range(12)):
    if cnt & 1 != 0:
       continue
    #print(p)
-   # p[i] is the new corner at 'i'  (so it moves from p[i] -> i)
+   # p[i] is the new edge at 'i'  (so it moves from p[i] -> i)
    # construct w * b
    st_w_b = [edge_w[p[i]] for i in range(12)]
    # construct b^-1 on 0...11, then b^(-1) wb
@@ -301,8 +301,8 @@ for p in itertools.permutations(range(12)):
 
 
 
-# build corner rotations for b = (0, 3, 1, 6, 4, 2, 5, 7) from 3-cycles
-print("build a (corner cycles):", pgoal)
+# build edge flips for b = (0, 3, 1, 6, 4, 2, 5, 7) from 3-cycles
+print("build b (edge flips):", pgoal)
 
 
 pgoal = (1, 4, 0, 7, 8, 5, 9, 11, 2, 3, 10, 6)
