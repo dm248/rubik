@@ -8,9 +8,9 @@
 
 from rubik import *
 
-#
+###
 # cursory look at the moves/states involved
-#
+###
 
 def checkMoves(s):
    moves = RubikCube.string2moves(s)
@@ -70,7 +70,9 @@ print("#w_b - edge and corner perms:")
 wb_edges, wb_corners = edgeAndCornerPerms(state_wb)
 
 # => w_a and w have the same edge positions and orientations, so 'a' very likely only affects corners
-
+#    w_b and w have the same corner positions and orientations, so 'b' very likely only affects corners
+#
+# -> go for 'a'
 
 
 # get corner perms of in a from wa, w
@@ -79,20 +81,33 @@ corn_w  = [p[0]   for p in w_corners]
 print(corn_wa, corn_w)
 
 
+####
 # consider all corner permutations for 'a'
 # and check whether w_a = a^(-1) w a, i.e., a * w_a = w * a
 #
 # first move corners into position, then twist them the right way
-#
+####
 
+#
 # find corner permutation
 #
 print("#viable corner perms for a:")
+
 
 import itertools
 
 
 for p in itertools.permutations(range(8)):
+   # only keep even permutations
+   p2 = list(p)
+   cnt = 0
+   for i in range(7):
+      tmp = p2[i]
+      while tmp != i:
+         p2[tmp], tmp = tmp, p2[tmp]
+         cnt += 1
+   if cnt & 1 != 0:
+      continue
    # p[i] is the new corner at 'i'  (so it moves from p[i] -> i)
    # construct w * a
    st_w_a = [corn_w[p[i]] for i in range(8)]
@@ -100,16 +115,7 @@ for p in itertools.permutations(range(8)):
    st_ainv = [p[i] for i in range(8)]
    st_ainv_wa = [st_ainv[corn_wa[i]] for i in range(8)]
    if st_ainv_wa == st_w_a:
-      # count swaps
-      p2 = list(p)
-      cnt = 0
-      for i in range(8):
-         if p2[i] != i:
-            pos = p2.index(i)
-            p2[i], p2[pos] = p2[pos], p2[i]
-            cnt += 1
-      if cnt & 1 == 0:  # only even perms possible on real cube (if edges are unchanged)
-         print(p, cnt)
+      print(p, cnt)
 
 
 # build corner rotations for a = (0, 3, 1, 6, 4, 2, 5, 7) from 3-cycles
@@ -122,7 +128,7 @@ for i in range(8):
    if p0[i] == pgoal[i]:
       continue
    idx1, idx2 = p0.index(pgoal[i]), i     # construct a cycle that fills i-th position using tail of p0
-   idx3 = i + 1   if idx2 != i + 1   else i + 2
+   idx3 = i + 1   if idx1 != i + 1   else i + 2
    print(p0, idx1, idx2, idx3)
    acycle_str.append(RubikCube.corner_cycles[idx1][idx2][idx3])
    p0copy = tuple(p0)     # apply to p0
@@ -143,15 +149,14 @@ print("acycle=", acycle_str)
 cube.reset()
 acycle_perm = RubikCube.stringMoves2permutation(acycle_str)
 cube.permute(acycle_perm)
-print(cube.getCornerPermutation())
 # check a^-1 w a
-print(wa_corners)
+print("wa corners:", wa_corners)
 cube.reset()
 cube.invPermute(acycle_perm)
 cube.move(seq_w)
 cube.permute(acycle_perm)
-print(cube.getCornerPermutation())
-# it works
+print("a^-1 w a  :", cube.getCornerPermutation())
+# permutation works
 
 
 # consider all corner twists for 'a'
@@ -216,7 +221,6 @@ print(cube.isReset())
 
 # compactify result for a_str
 
-print(a_str)
 cube.reset()
 cube.stringMove(a_str)
 print("a_state:", cube.toString(RubikCube.FORMAT_KOCIEMBA))
@@ -241,17 +245,200 @@ print("key_state:", cube.toString(RubikCube.FORMAT_KOCIEMBA))
 
 key1_str = RubikCube.invertStringMoves("R1 B2 D2 F1 R2 D1 L3 B3 R1 B1 L2 U3 R2 U3 B2 L2 U3 F2 D1 F2")
 print(key1_str)
-print(key1_str.replace(" ",""))
+print("flag=", key1_str.replace(" ",""))
 
 #actf{F2D'F2UL2B2UR2UL2B'R'BLD'R2F'D2B2R'}
+
+
+
+####
+# now try with computing 'b', in an analogous way
+####
+
+print("\n\nNow try solving for b.... (quite slow ~ 5 min)")
+
+# get edge perms of in a from wb, w
+edge_wb = [p[0]   for p in wb_edges]
+edge_w  = [p[0]   for p in w_edges]
+print(edge_wb, edge_w)
+
+
+# consider all corner permutations for 'b'
+# and check whether w_b = b^(-1) w b, i.e., b * w_b = w * b
+#
+# first move corners into position, then twist them the right way
+#
+
+# find corner permutation
+#
+print("#viable corner perms for b:")
+
+
+pgoal = None
+for p in itertools.permutations(range(12)):
+   #break # disable for real search
+   # allow only even perms
+   cnt = 0
+   p2 = list(p) 
+   for i in range(12):
+      tmp = p2[i]
+      while tmp != i:
+         p2[tmp], tmp = tmp, p2[tmp]
+         cnt += 1
+   if cnt & 1 != 0:
+      continue
+   #print(p)
+   # p[i] is the new corner at 'i'  (so it moves from p[i] -> i)
+   # construct w * b
+   st_w_b = [edge_w[p[i]] for i in range(12)]
+   # construct b^-1 on 0...11, then b^(-1) wb
+   st_binv = [p[i] for i in range(12)]
+   st_binv_wb = [st_binv[edge_wb[i]] for i in range(12)]
+   if st_binv_wb == st_w_b:
+      print(p, cnt)
+      pgoal = p
+      break
+
+
+
+# build corner rotations for b = (0, 3, 1, 6, 4, 2, 5, 7) from 3-cycles
+print("build a (corner cycles):", pgoal)
+
+
+pgoal = (1, 4, 0, 7, 8, 5, 9, 11, 2, 3, 10, 6)
+bcycle_str = []
+p0 = list(range(12))
+for i in range(12):
+   if p0[i] == pgoal[i]:
+      continue
+   idx1, idx2 = p0.index(pgoal[i]), i     # construct a cycle that fills i-th position using tail of p0
+   idx3 = i + 1   if idx1 != i + 1  else i + 2
+   print(p0, idx1, idx2, idx3)
+   bcycle_str.append(RubikCube.edge_cycles[idx1][idx2][idx3])
+   p0copy = tuple(p0)     # apply to p0
+   p0[idx1] = p0copy[idx3]
+   p0[idx2] = p0copy[idx1]
+   p0[idx3] = p0copy[idx2]
+
+bcycle_str = " ".join(bcycle_str)
+print("bcycle=", bcycle_str)     # 256+123 would have been shorter but this works too
+
+# verify that edge positions work
+cube.reset()
+bcycle_perm = RubikCube.stringMoves2permutation(bcycle_str)
+cube.permute(bcycle_perm)
+# check b^-1 w b
+print("wb edges:", wb_edges)
+cube.reset()
+cube.invPermute(bcycle_perm)
+cube.move(seq_w)
+cube.permute(bcycle_perm)
+print("b^-1 w b:", cube.getEdgePermutation())
+# permutation works
+
+
+# consider all edge flips for 'b'
+# and check whether w_b = b^(-1) w b, i.e., b * w_b = w * b
+print("#viable edge flips for b:")
+
+def find_bflips(wb_edges):
+   wb_flipgoal = [j for (i,j) in wb_edges]
+   print("goal:", wb_flipgoal)
+   for p in itertools.product(range(2), repeat = 12):
+      # check parity
+      if sum(p) & 1 != 0:
+         continue
+      #print(p)
+      # build moves that create given parity
+      cube = RubikCube()
+      p0 = [0]*12
+      moves = ""
+      for i in range(11):
+         if p[i] == p0[i]:  continue
+         m = RubikCube.edge_flips[i][i+1]
+         cube2 = RubikCube()
+         cube2.stringMove(m)
+         edges = cube2.getEdgePermutation()
+         #print(i, edges, p0)
+         cube.stringMove(m)
+         moves += " " + m
+         p0[i] = p[i]
+         p0[i + 1] = (p0[i + 1] + edges[i + 1][1]) & 1
+      #print(p, p0)
+      bflip_perm = cube.state2permutation()
+      # construct b^(-1) * w * b
+      cube.reset()
+      cube.invPermute(bflip_perm)
+      cube.invPermute(bcycle_perm)  # apply edge cycle -> may change edge orientations too
+      cube.permute(perm_w)
+      cube.permute(bcycle_perm)
+      cube.permute(bflip_perm)
+      # check result
+      if [j for (i,j) in cube.getEdgePermutation()] == wb_flipgoal:
+         print(p, moves)
+         return p, moves
+
+_, bflip_str = find_bflips(wb_edges)
+print("bflip=", bflip_str)
+
+
+b_str = bcycle_str + bflip_str
+print("b=", b_str)
+
+# verify result
+cube.reset()
+cube.stringMove(b_str, -1)
+cube.permute(perm_w)
+cube.stringMove(b_str)
+cube.invPermute(perm_wb)
+print(cube.isReset())
+
+
+# compactify result for b_str
+
+cube.reset()
+cube.stringMove(b_str)
+print("b_state:", cube.toString(RubikCube.FORMAT_KOCIEMBA))
+    #UUURULUUURBRDRDRLRFBFLFRFDFDFDRDUDUDLBLDLFLFLBRBLBBBFB
+    #-> B1 F1 L2 U2 L2 D2 B2 R2 U2 B1 L3 D1 B1 L2 U1 F1 D1 U2 L1 R2
+
+b1_str = RubikCube.invertStringMoves("B1 F1 L2 U2 L2 D2 B2 R2 U2 B1 L3 D1 B1 L2 U1 F1 D1 U2 L1 R2")
+print("simplified b=", b1_str, RubikCube.areEqualStringMoves(b_str, b1_str))
+
+b2_str = "R2 L' U2 D' F' U' L2 B' D' L B' U2 R2 B2 D2 L2 U2 L2 F' B'"
+
+
+# compute secret key b^(-1) w_a b
+
+key2_str = RubikCube.invertStringMoves(b2_str) + " " + waStr + " " + b2_str
+print(key2_str)
+
+# simplify it
+cube.reset()
+cube.stringMove(key2_str)
+print("key2_state:", cube.toString(RubikCube.FORMAT_KOCIEMBA))
+   #RRDBUUURFRBFLRFLFUBFDBFURRBBBDRDLULBFLRFLDLUDLDUDBULDF
+   #-> R1 B2 D2 F1 R2 D1 L3 B3 R1 B1 L2 U3 R2 U3 B2 L2 U3 F2 D1 F2
+
+key2_str = RubikCube.invertStringMoves("R1 B2 D2 F1 R2 D1 L3 B3 R1 B1 L2 U3 R2 U3 B2 L2 U3 F2 D1 F2")
+print(key2_str)
+print("flag=", key1_str.replace(" ",""), key2_str == key1_str)
+
+
+# same as solving for 'a', just longer
 
 
 exit(0)
 
 
 
+
+########
+##
 ## blind search up to some depth using 6 basic moves
 ## -> ineffective
+##
+#########
 
 # moves, ordered such that it is easy to distinguish moves generated by same basic move
 # - indices (1,2,3), (4,5,6), ... (16,17,18) are from same basic move
