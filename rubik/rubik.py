@@ -49,6 +49,11 @@
 #
 
 
+# FIXME: refactor into helpers + class + init
+#        
+
+
+
 import sys, numpy as np, itertools
 
 
@@ -231,7 +236,7 @@ class RubikCube():
          start = row * 3
          print("   |" + self._range2string(start, start + 3, facesonly) + "|")
       print("    ---")
-      for row in range(3): # left, mid, right, back
+      for row in range(3): # left, front, right, back
          s = ""
          for face in range(1, 5): 
             start = face * 9 + row * 3
@@ -248,7 +253,7 @@ class RubikCube():
    # basic moves (L R F B U D)
    #
 
-   # cycle positions given by indices
+   # cycle positions given by indices by shft steps
    def _cycleCells(self, shft, indices):
       state = self.state
       tmp = tuple( state[idx] for idx in indices )
@@ -770,6 +775,7 @@ for rot in range(24):
 ###
 
 
+# this is a small test suite
 def TESTsuite(format = RubikCube.FORMAT_DEFAULT):
 
    facesonly =  (format != RubikCube.FORMAT_DEFAULT)
@@ -868,11 +874,77 @@ def TESTsuite(format = RubikCube.FORMAT_DEFAULT):
    seq2 = RubikCube.string2moves(seq2_str)
    print(seq1_str + ":", RubikCube.findOrder(seq1))
    print(seq2_str + ":", RubikCube.findOrder(seq2))
+
+
+
+# test flips/twists
+def TEST_tables2(tbl, edge = True):
+   cnt = 0
+   n = len(tbl)
+   cube = RubikCube()
+   for i in range(n):
+      for j in range(n):
+         s, p, bad = tbl[i][j], None, False
+         bad = (s != None)  if i == j   else  (s == None) 
+         if s != None:
+            cnt += 1
+            cube.reset()
+            cube.move(s)
+            p = cube.getEdgePermutation()   if edge   else  cube.getCornerPermutation()
+            bad = ( p[i][1] != 1 or p[j][1] == 0)
+         if bad:
+            print((i,j), p, s)
+   print("count(2):", cnt)
+
+
+# test cycles
+def TEST_tables3(tbl, edge = True):
+   cnt = 0
+   n = len(tbl)
+   for i in range(n):
+      for j in range(n):
+         for k in range(n):
+            s, p = tbl[i][j][k], None
+            bad = (s != None)  if j == i or k == j or k == i   else  (s == None) 
+            if s != None:
+               cube = RubikCube()
+               cube.move(s)
+               p = cube.getEdgePermutation()   if edge   else  cube.getCornerPermutation()
+               cnt += 1
+               bad = (p[i][0] != k or p[j][0] != i or p[k][0] != j)
+            if bad:
+               print((i,j,k), p, s)
+   print("count(3):", cnt)
+
+
+def TEST_tables(tbl, edge = True):
+  # determine number of columns
+  d, t = 0, tbl
+  while isinstance(t, list):
+     d, t = d + 1, t[0]
+  if d == 2:   # flip/twist
+     TEST_tables2(tbl, edge)
+  elif d == 3: # cycle
+     TEST_tables3(tbl, edge)
   
 
-#TESTsuite(False)
-#TESTsuite(True)
 
+def main():
+   print("## verify tables")
+   TEST_tables(RubikCube.edge_cycles, True)
+   TEST_tables(RubikCube.edge_flips, True)
+   TEST_tables(RubikCube.corner_cycles, False)
+   TEST_tables(RubikCube.corner_twists, False)
+
+   print("##TEST SUITE with detailed facelets")
+   TESTsuite(False)
+
+   print("\n##TEST SUITE with face colors only")
+   TESTsuite(True)
+
+
+if __name__ == "__main__":
+   main()
 
 ######
 # END

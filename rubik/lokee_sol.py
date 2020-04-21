@@ -6,7 +6,7 @@
 # => strategy, construct 'a' by bruteforce search given w_a and w
 
 
-from rubik import *
+from rubik import RubikCube
 
 ###
 # cursory look at the moves/states involved
