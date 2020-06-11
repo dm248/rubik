@@ -1,0 +1,1058 @@
+## verify tables
+count(3): 1320
+count(2): 132
+count(3): 336
+count(2): 56
+##TEST SUITE with detailed facelets
+abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQR
+#initial:
+   |abc|
+   |def|
+   |ghi|
+    ---
+jkl|stu|123|ABC
+mno|vwx|456|DEF
+pqr|yz0|789|GHI
+    ---
+   |JKL|
+   |MNO|
+   |PQR|
+#L1:
+   |Ibc|
+   |Fef|
+   |Chi|
+    ---
+pmj|atu|123|ABP
+qnk|dwx|456|DEM
+rol|gz0|789|GHJ
+    ---
+   |sKL|
+   |vNO|
+   |yQR|
+#L2:
+   |Jbc|
+   |Mef|
+   |Phi|
+    ---
+rqp|Itu|123|ABy
+onm|Fwx|456|DEv
+lkj|Cz0|789|GHs
+    ---
+   |aKL|
+   |dNO|
+   |gQR|
+#L3:
+   |sbc|
+   |vef|
+   |yhi|
+    ---
+lor|Jtu|123|ABg
+knq|Mwx|456|DEd
+jmp|Pz0|789|GHa
+    ---
+   |IKL|
+   |FNO|
+   |CQR|
+#L4:
+   |abc|
+   |def|
+   |ghi|
+    ---
+jkl|stu|123|ABC
+mno|vwx|456|DEF
+pqr|yz0|789|GHI
+    ---
+   |JKL|
+   |MNO|
+   |PQR|
+#Linv:
+   |sbc|
+   |vef|
+   |yhi|
+    ---
+lor|Jtu|123|ABg
+knq|Mwx|456|DEd
+jmp|Pz0|789|GHa
+    ---
+   |IKL|
+   |FNO|
+   |CQR|
+#Linv + L:
+   |abc|
+   |def|
+   |ghi|
+    ---
+jkl|stu|123|ABC
+mno|vwx|456|DEF
+pqr|yz0|789|GHI
+    ---
+   |JKL|
+   |MNO|
+   |PQR|
+#R1:
+   |abu|
+   |dex|
+   |gh0|
+    ---
+jkl|stL|741|iBC
+mno|vwO|852|fEF
+pqr|yzR|963|cHI
+    ---
+   |JKG|
+   |MND|
+   |PQA|
+#R2:
+   |abL|
+   |deO|
+   |ghR|
+    ---
+jkl|stG|987|0BC
+mno|vwD|654|xEF
+pqr|yzA|321|uHI
+    ---
+   |JKc|
+   |MNf|
+   |PQi|
+#R3:
+   |abG|
+   |deD|
+   |ghA|
+    ---
+jkl|stc|369|RBC
+mno|vwf|258|OEF
+pqr|yzi|147|LHI
+    ---
+   |JKu|
+   |MNx|
+   |PQ0|
+#R4:
+   |abc|
+   |def|
+   |ghi|
+    ---
+jkl|stu|123|ABC
+mno|vwx|456|DEF
+pqr|yz0|789|GHI
+    ---
+   |JKL|
+   |MNO|
+   |PQR|
+#Rinv:
+   |abG|
+   |deD|
+   |ghA|
+    ---
+jkl|stc|369|RBC
+mno|vwf|258|OEF
+pqr|yzi|147|LHI
+    ---
+   |JKu|
+   |MNx|
+   |PQ0|
+#Rinv + R:
+   |abc|
+   |def|
+   |ghi|
+    ---
+jkl|stu|123|ABC
+mno|vwx|456|DEF
+pqr|yz0|789|GHI
+    ---
+   |JKL|
+   |MNO|
+   |PQR|
+#F1:
+   |abc|
+   |def|
+   |rol|
+    ---
+jkJ|yvs|g23|ABC
+mnK|zwt|h56|DEF
+pqL|0xu|i89|GHI
+    ---
+   |741|
+   |MNO|
+   |PQR|
+#F2:
+   |abc|
+   |def|
+   |LKJ|
+    ---
+jk7|0zy|r23|ABC
+mn4|xwv|o56|DEF
+pq1|uts|l89|GHI
+    ---
+   |ihg|
+   |MNO|
+   |PQR|
+#F3:
+   |abc|
+   |def|
+   |147|
+    ---
+jki|ux0|L23|ABC
+mnh|twz|K56|DEF
+pqg|svy|J89|GHI
+    ---
+   |lor|
+   |MNO|
+   |PQR|
+#F4:
+   |abc|
+   |def|
+   |ghi|
+    ---
+jkl|stu|123|ABC
+mno|vwx|456|DEF
+pqr|yz0|789|GHI
+    ---
+   |JKL|
+   |MNO|
+   |PQR|
+#Finv:
+   |abc|
+   |def|
+   |147|
+    ---
+jki|ux0|L23|ABC
+mnh|twz|K56|DEF
+pqg|svy|J89|GHI
+    ---
+   |lor|
+   |MNO|
+   |PQR|
+#Finv + F:
+   |abc|
+   |def|
+   |ghi|
+    ---
+jkl|stu|123|ABC
+mno|vwx|456|DEF
+pqr|yz0|789|GHI
+    ---
+   |JKL|
+   |MNO|
+   |PQR|
+#B1:
+   |369|
+   |def|
+   |ghi|
+    ---
+ckl|stu|12R|GDA
+bno|vwx|45Q|HEB
+aqr|yz0|78P|IFC
+    ---
+   |JKL|
+   |MNO|
+   |jmp|
+#B2:
+   |RQP|
+   |def|
+   |ghi|
+    ---
+9kl|stu|12p|IHG
+6no|vwx|45m|FED
+3qr|yz0|78j|CBA
+    ---
+   |JKL|
+   |MNO|
+   |cba|
+#B3:
+   |pmj|
+   |def|
+   |ghi|
+    ---
+Pkl|stu|12a|CFI
+Qno|vwx|45b|BEH
+Rqr|yz0|78c|ADG
+    ---
+   |JKL|
+   |MNO|
+   |963|
+#B4:
+   |abc|
+   |def|
+   |ghi|
+    ---
+jkl|stu|123|ABC
+mno|vwx|456|DEF
+pqr|yz0|789|GHI
+    ---
+   |JKL|
+   |MNO|
+   |PQR|
+#Binv:
+   |pmj|
+   |def|
+   |ghi|
+    ---
+Pkl|stu|12a|CFI
+Qno|vwx|45b|BEH
+Rqr|yz0|78c|ADG
+    ---
+   |JKL|
+   |MNO|
+   |963|
+#Binv + B:
+   |abc|
+   |def|
+   |ghi|
+    ---
+jkl|stu|123|ABC
+mno|vwx|456|DEF
+pqr|yz0|789|GHI
+    ---
+   |JKL|
+   |MNO|
+   |PQR|
+#U1:
+   |gda|
+   |heb|
+   |ifc|
+    ---
+stu|123|ABC|jkl
+mno|vwx|456|DEF
+pqr|yz0|789|GHI
+    ---
+   |JKL|
+   |MNO|
+   |PQR|
+#U2:
+   |ihg|
+   |fed|
+   |cba|
+    ---
+123|ABC|jkl|stu
+mno|vwx|456|DEF
+pqr|yz0|789|GHI
+    ---
+   |JKL|
+   |MNO|
+   |PQR|
+#U3:
+   |cfi|
+   |beh|
+   |adg|
+    ---
+ABC|jkl|stu|123
+mno|vwx|456|DEF
+pqr|yz0|789|GHI
+    ---
+   |JKL|
+   |MNO|
+   |PQR|
+#U4:
+   |abc|
+   |def|
+   |ghi|
+    ---
+jkl|stu|123|ABC
+mno|vwx|456|DEF
+pqr|yz0|789|GHI
+    ---
+   |JKL|
+   |MNO|
+   |PQR|
+#Uinv:
+   |cfi|
+   |beh|
+   |adg|
+    ---
+ABC|jkl|stu|123
+mno|vwx|456|DEF
+pqr|yz0|789|GHI
+    ---
+   |JKL|
+   |MNO|
+   |PQR|
+#Uinv + U:
+   |abc|
+   |def|
+   |ghi|
+    ---
+jkl|stu|123|ABC
+mno|vwx|456|DEF
+pqr|yz0|789|GHI
+    ---
+   |JKL|
+   |MNO|
+   |PQR|
+#D1:
+   |abc|
+   |def|
+   |ghi|
+    ---
+jkl|stu|123|ABC
+mno|vwx|456|DEF
+GHI|pqr|yz0|789
+    ---
+   |PMJ|
+   |QNK|
+   |ROL|
+#D2:
+   |abc|
+   |def|
+   |ghi|
+    ---
+jkl|stu|123|ABC
+mno|vwx|456|DEF
+789|GHI|pqr|yz0
+    ---
+   |RQP|
+   |ONM|
+   |LKJ|
+#D3:
+   |abc|
+   |def|
+   |ghi|
+    ---
+jkl|stu|123|ABC
+mno|vwx|456|DEF
+yz0|789|GHI|pqr
+    ---
+   |LOR|
+   |KNQ|
+   |JMP|
+#D4:
+   |abc|
+   |def|
+   |ghi|
+    ---
+jkl|stu|123|ABC
+mno|vwx|456|DEF
+pqr|yz0|789|GHI
+    ---
+   |JKL|
+   |MNO|
+   |PQR|
+#Dinv:
+   |abc|
+   |def|
+   |ghi|
+    ---
+jkl|stu|123|ABC
+mno|vwx|456|DEF
+yz0|789|GHI|pqr
+    ---
+   |LOR|
+   |KNQ|
+   |JMP|
+#Dinv + D:
+   |abc|
+   |def|
+   |ghi|
+    ---
+jkl|stu|123|ABC
+mno|vwx|456|DEF
+pqr|yz0|789|GHI
+    ---
+   |JKL|
+   |MNO|
+   |PQR|
+moves:
+   |aHc|
+   |def|
+   |gzi|
+    ---
+jkl|sKu|123|AQC
+Dnx|4wo|v5F|mE6
+pqr|yh0|789|GbI
+    ---
+   |JtL|
+   |MNO|
+   |PBR|
+states:
+(0, 43, 2, 3, 4, 5, 6, 25, 8, 9, 10, 11, 39, 13, 23, 15, 16, 17, 18, 46, 20, 30, 22, 14, 24, 7, 26, 27, 28, 29, 21, 31, 41, 33, 34, 35, 36, 52, 38, 12, 40, 32, 42, 1, 44, 45, 19, 47, 48, 49, 50, 51, 37, 53)
+permutations:
+edge permutation: [(8, 0), (4, 0), (10, 0), (6, 1), (3, 1), (11, 0), (1, 0), (9, 0), (0, 0), (5, 1), (2, 0), (7, 1)]
+corner permutation: [(3, 1), (5, 2), (1, 1), (7, 2), (0, 2), (6, 1), (2, 2), (4, 1)]
+to/from string:
+CdIhex0QuatLqn6coJ7H1DwFrBli4Pm52gzRpkjfEM983ybsvNKAOG
+True
+OYOYYRRWRYRWBBGYBWGOGOROBOBYGWBGGYRWBBBYOWGGGRYRRWWOWO
+True
+BUBUUFFDFURDLRRUFDRBRBFBLBLFUFFDDBDBUFDLLRULDLLLUBDRRR
+True
+515113363136224126454535252146244136222156444313366565
+True
+rigid rotations:
+0 [(1, 0), (2, 0), (0, 0), (3, 0), (4, 0), (5, 0), (6, 0), (7, 0), (8, 0), (9, 0), (10, 0), (11, 0)]
+1 [(8, 1), (1, 0), (2, 0), (3, 0), (4, 0), (5, 0), (6, 0), (0, 0), (7, 1), (9, 0), (10, 0), (11, 0)]
+2 [(0, 0), (1, 0), (2, 0), (3, 0), (4, 0), (5, 0), (6, 0), (7, 0), (10, 0), (8, 0), (9, 0), (11, 0)]
+3 [(0, 0), (1, 0), (6, 1), (3, 0), (4, 0), (5, 0), (10, 0), (7, 0), (8, 0), (9, 0), (2, 1), (11, 0)]
+4 [(0, 0), (2, 0), (3, 0), (1, 0), (4, 0), (5, 0), (6, 0), (7, 0), (8, 0), (9, 0), (10, 0), (11, 0)]
+5 [(0, 0), (9, 1), (2, 0), (3, 0), (4, 0), (5, 0), (1, 0), (7, 0), (8, 0), (6, 1), (10, 0), (11, 0)]
+6 [(0, 0), (1, 0), (2, 0), (3, 0), (4, 0), (5, 0), (6, 0), (7, 0), (8, 0), (11, 0), (9, 0), (10, 0)]
+7 [(0, 0), (1, 0), (2, 0), (5, 1), (4, 0), (11, 0), (6, 0), (7, 0), (8, 0), (9, 0), (10, 0), (3, 1)]
+8 [(2, 0), (1, 0), (3, 0), (0, 0), (4, 0), (5, 0), (6, 0), (7, 0), (8, 0), (9, 0), (10, 0), (11, 0)]
+9 [(0, 0), (1, 0), (10, 1), (3, 0), (4, 0), (2, 0), (6, 0), (7, 0), (8, 0), (9, 0), (5, 1), (11, 0)]
+10 [(0, 0), (1, 0), (2, 0), (3, 0), (4, 0), (5, 0), (6, 0), (7, 0), (11, 0), (9, 0), (8, 0), (10, 0)]
+11 [(4, 0), (1, 0), (2, 0), (3, 0), (8, 1), (5, 0), (6, 0), (7, 0), (0, 1), (9, 0), (10, 0), (11, 0)]
+12 [(1, 0), (3, 0), (2, 0), (0, 0), (4, 0), (5, 0), (6, 0), (7, 0), (8, 0), (9, 0), (10, 0), (11, 0)]
+13 [(0, 0), (1, 0), (2, 0), (11, 1), (3, 1), (5, 0), (6, 0), (7, 0), (8, 0), (9, 0), (10, 0), (4, 0)]
+14 [(0, 0), (1, 0), (2, 0), (3, 0), (4, 0), (5, 0), (6, 0), (7, 0), (11, 0), (8, 0), (10, 0), (9, 0)]
+15 [(0, 0), (7, 1), (2, 0), (3, 0), (4, 0), (5, 0), (6, 0), (9, 0), (8, 0), (1, 1), (10, 0), (11, 0)]
+16 [(0, 0), (1, 0), (2, 0), (3, 0), (4, 0), (5, 0), (7, 1), (9, 0), (8, 0), (6, 1), (10, 0), (11, 0)]
+17 [(0, 0), (1, 0), (2, 0), (3, 0), (8, 1), (5, 0), (6, 0), (4, 0), (7, 1), (9, 0), (10, 0), (11, 0)]
+18 [(0, 0), (1, 0), (2, 0), (3, 0), (5, 0), (11, 0), (6, 0), (7, 0), (8, 0), (9, 0), (10, 0), (4, 0)]
+19 [(0, 0), (1, 0), (2, 0), (3, 0), (4, 0), (6, 1), (10, 0), (7, 0), (8, 0), (9, 0), (5, 1), (11, 0)]
+20 [(0, 0), (1, 0), (2, 0), (5, 1), (3, 1), (4, 0), (6, 0), (7, 0), (8, 0), (9, 0), (10, 0), (11, 0)]
+21 [(4, 0), (1, 0), (2, 0), (3, 0), (7, 0), (5, 0), (6, 0), (0, 0), (8, 0), (9, 0), (10, 0), (11, 0)]
+22 [(0, 0), (7, 1), (2, 0), (3, 0), (4, 0), (5, 0), (1, 0), (6, 1), (8, 0), (9, 0), (10, 0), (11, 0)]
+23 [(0, 0), (1, 0), (6, 1), (3, 0), (4, 0), (2, 0), (5, 1), (7, 0), (8, 0), (9, 0), (10, 0), (11, 0)]
+0 [(2, 0), (0, 0), (1, 0), (3, 0), (4, 0), (5, 0), (6, 0), (7, 0)]
+1 [(0, 0), (5, 1), (2, 0), (3, 0), (1, 0), (4, 2), (6, 0), (7, 0)]
+2 [(0, 0), (1, 0), (2, 0), (3, 0), (4, 0), (6, 0), (7, 0), (5, 0)]
+3 [(0, 0), (1, 0), (3, 2), (6, 0), (4, 0), (5, 0), (2, 1), (7, 0)]
+4 [(0, 0), (3, 0), (1, 0), (2, 0), (4, 0), (5, 0), (6, 0), (7, 0)]
+5 [(0, 0), (1, 0), (6, 1), (3, 0), (4, 0), (2, 0), (5, 2), (7, 0)]
+6 [(0, 0), (1, 0), (2, 0), (3, 0), (6, 0), (5, 0), (7, 0), (4, 0)]
+7 [(7, 0), (1, 0), (2, 0), (0, 2), (4, 0), (5, 0), (6, 0), (3, 1)]
+8 [(3, 0), (1, 0), (0, 0), (2, 0), (4, 0), (5, 0), (6, 0), (7, 0)]
+9 [(0, 0), (1, 0), (2, 0), (7, 1), (4, 0), (5, 0), (3, 0), (6, 2)]
+10 [(0, 0), (1, 0), (2, 0), (3, 0), (5, 0), (7, 0), (6, 0), (4, 0)]
+11 [(1, 2), (4, 0), (2, 0), (3, 0), (0, 1), (5, 0), (6, 0), (7, 0)]
+12 [(3, 0), (0, 0), (2, 0), (1, 0), (4, 0), (5, 0), (6, 0), (7, 0)]
+13 [(4, 1), (1, 0), (2, 0), (3, 0), (7, 2), (5, 0), (6, 0), (0, 0)]
+14 [(0, 0), (1, 0), (2, 0), (3, 0), (5, 0), (6, 0), (4, 0), (7, 0)]
+15 [(0, 0), (2, 2), (5, 0), (3, 0), (4, 0), (1, 1), (6, 0), (7, 0)]
+16 [(0, 0), (6, 0), (2, 0), (3, 0), (4, 0), (1, 1), (5, 2), (7, 0)]
+17 [(5, 0), (1, 0), (2, 0), (3, 0), (0, 1), (4, 2), (6, 0), (7, 0)]
+18 [(0, 0), (1, 0), (2, 0), (4, 0), (7, 2), (5, 0), (6, 0), (3, 1)]
+19 [(0, 0), (1, 0), (7, 0), (3, 0), (4, 0), (5, 0), (2, 1), (6, 2)]
+20 [(4, 1), (1, 0), (2, 0), (0, 2), (3, 0), (5, 0), (6, 0), (7, 0)]
+21 [(1, 2), (5, 1), (2, 0), (3, 0), (4, 0), (0, 0), (6, 0), (7, 0)]
+22 [(0, 0), (2, 2), (6, 1), (3, 0), (4, 0), (5, 0), (1, 0), (7, 0)]
+23 [(0, 0), (1, 0), (3, 2), (7, 1), (4, 0), (5, 0), (6, 0), (2, 0)]
+#order of basic moves:
+[4, 4, 4, 4, 4, 4]
+L F: 105
+R U2 D' B D': 1260
+D' B D' U2 R: 84
+
+##TEST SUITE with face colors only
+YYYYYYYYYBBBBBBBBBRRRRRRRRRGGGGGGGGGOOOOOOOOOWWWWWWWWW
+#initial:
+   |YYY|
+   |YYY|
+   |YYY|
+    ---
+BBB|RRR|GGG|OOO
+BBB|RRR|GGG|OOO
+BBB|RRR|GGG|OOO
+    ---
+   |WWW|
+   |WWW|
+   |WWW|
+#L1:
+   |OYY|
+   |OYY|
+   |OYY|
+    ---
+BBB|YRR|GGG|OOW
+BBB|YRR|GGG|OOW
+BBB|YRR|GGG|OOW
+    ---
+   |RWW|
+   |RWW|
+   |RWW|
+#L2:
+   |WYY|
+   |WYY|
+   |WYY|
+    ---
+BBB|ORR|GGG|OOR
+BBB|ORR|GGG|OOR
+BBB|ORR|GGG|OOR
+    ---
+   |YWW|
+   |YWW|
+   |YWW|
+#L3:
+   |RYY|
+   |RYY|
+   |RYY|
+    ---
+BBB|WRR|GGG|OOY
+BBB|WRR|GGG|OOY
+BBB|WRR|GGG|OOY
+    ---
+   |OWW|
+   |OWW|
+   |OWW|
+#L4:
+   |YYY|
+   |YYY|
+   |YYY|
+    ---
+BBB|RRR|GGG|OOO
+BBB|RRR|GGG|OOO
+BBB|RRR|GGG|OOO
+    ---
+   |WWW|
+   |WWW|
+   |WWW|
+#Linv:
+   |RYY|
+   |RYY|
+   |RYY|
+    ---
+BBB|WRR|GGG|OOY
+BBB|WRR|GGG|OOY
+BBB|WRR|GGG|OOY
+    ---
+   |OWW|
+   |OWW|
+   |OWW|
+#Linv + L:
+   |YYY|
+   |YYY|
+   |YYY|
+    ---
+BBB|RRR|GGG|OOO
+BBB|RRR|GGG|OOO
+BBB|RRR|GGG|OOO
+    ---
+   |WWW|
+   |WWW|
+   |WWW|
+#R1:
+   |YYR|
+   |YYR|
+   |YYR|
+    ---
+BBB|RRW|GGG|YOO
+BBB|RRW|GGG|YOO
+BBB|RRW|GGG|YOO
+    ---
+   |WWO|
+   |WWO|
+   |WWO|
+#R2:
+   |YYW|
+   |YYW|
+   |YYW|
+    ---
+BBB|RRO|GGG|ROO
+BBB|RRO|GGG|ROO
+BBB|RRO|GGG|ROO
+    ---
+   |WWY|
+   |WWY|
+   |WWY|
+#R3:
+   |YYO|
+   |YYO|
+   |YYO|
+    ---
+BBB|RRY|GGG|WOO
+BBB|RRY|GGG|WOO
+BBB|RRY|GGG|WOO
+    ---
+   |WWR|
+   |WWR|
+   |WWR|
+#R4:
+   |YYY|
+   |YYY|
+   |YYY|
+    ---
+BBB|RRR|GGG|OOO
+BBB|RRR|GGG|OOO
+BBB|RRR|GGG|OOO
+    ---
+   |WWW|
+   |WWW|
+   |WWW|
+#Rinv:
+   |YYO|
+   |YYO|
+   |YYO|
+    ---
+BBB|RRY|GGG|WOO
+BBB|RRY|GGG|WOO
+BBB|RRY|GGG|WOO
+    ---
+   |WWR|
+   |WWR|
+   |WWR|
+#Rinv + R:
+   |YYY|
+   |YYY|
+   |YYY|
+    ---
+BBB|RRR|GGG|OOO
+BBB|RRR|GGG|OOO
+BBB|RRR|GGG|OOO
+    ---
+   |WWW|
+   |WWW|
+   |WWW|
+#F1:
+   |YYY|
+   |YYY|
+   |BBB|
+    ---
+BBW|RRR|YGG|OOO
+BBW|RRR|YGG|OOO
+BBW|RRR|YGG|OOO
+    ---
+   |GGG|
+   |WWW|
+   |WWW|
+#F2:
+   |YYY|
+   |YYY|
+   |WWW|
+    ---
+BBG|RRR|BGG|OOO
+BBG|RRR|BGG|OOO
+BBG|RRR|BGG|OOO
+    ---
+   |YYY|
+   |WWW|
+   |WWW|
+#F3:
+   |YYY|
+   |YYY|
+   |GGG|
+    ---
+BBY|RRR|WGG|OOO
+BBY|RRR|WGG|OOO
+BBY|RRR|WGG|OOO
+    ---
+   |BBB|
+   |WWW|
+   |WWW|
+#F4:
+   |YYY|
+   |YYY|
+   |YYY|
+    ---
+BBB|RRR|GGG|OOO
+BBB|RRR|GGG|OOO
+BBB|RRR|GGG|OOO
+    ---
+   |WWW|
+   |WWW|
+   |WWW|
+#Finv:
+   |YYY|
+   |YYY|
+   |GGG|
+    ---
+BBY|RRR|WGG|OOO
+BBY|RRR|WGG|OOO
+BBY|RRR|WGG|OOO
+    ---
+   |BBB|
+   |WWW|
+   |WWW|
+#Finv + F:
+   |YYY|
+   |YYY|
+   |YYY|
+    ---
+BBB|RRR|GGG|OOO
+BBB|RRR|GGG|OOO
+BBB|RRR|GGG|OOO
+    ---
+   |WWW|
+   |WWW|
+   |WWW|
+#B1:
+   |GGG|
+   |YYY|
+   |YYY|
+    ---
+YBB|RRR|GGW|OOO
+YBB|RRR|GGW|OOO
+YBB|RRR|GGW|OOO
+    ---
+   |WWW|
+   |WWW|
+   |BBB|
+#B2:
+   |WWW|
+   |YYY|
+   |YYY|
+    ---
+GBB|RRR|GGB|OOO
+GBB|RRR|GGB|OOO
+GBB|RRR|GGB|OOO
+    ---
+   |WWW|
+   |WWW|
+   |YYY|
+#B3:
+   |BBB|
+   |YYY|
+   |YYY|
+    ---
+WBB|RRR|GGY|OOO
+WBB|RRR|GGY|OOO
+WBB|RRR|GGY|OOO
+    ---
+   |WWW|
+   |WWW|
+   |GGG|
+#B4:
+   |YYY|
+   |YYY|
+   |YYY|
+    ---
+BBB|RRR|GGG|OOO
+BBB|RRR|GGG|OOO
+BBB|RRR|GGG|OOO
+    ---
+   |WWW|
+   |WWW|
+   |WWW|
+#Binv:
+   |BBB|
+   |YYY|
+   |YYY|
+    ---
+WBB|RRR|GGY|OOO
+WBB|RRR|GGY|OOO
+WBB|RRR|GGY|OOO
+    ---
+   |WWW|
+   |WWW|
+   |GGG|
+#Binv + B:
+   |YYY|
+   |YYY|
+   |YYY|
+    ---
+BBB|RRR|GGG|OOO
+BBB|RRR|GGG|OOO
+BBB|RRR|GGG|OOO
+    ---
+   |WWW|
+   |WWW|
+   |WWW|
+#U1:
+   |YYY|
+   |YYY|
+   |YYY|
+    ---
+RRR|GGG|OOO|BBB
+BBB|RRR|GGG|OOO
+BBB|RRR|GGG|OOO
+    ---
+   |WWW|
+   |WWW|
+   |WWW|
+#U2:
+   |YYY|
+   |YYY|
+   |YYY|
+    ---
+GGG|OOO|BBB|RRR
+BBB|RRR|GGG|OOO
+BBB|RRR|GGG|OOO
+    ---
+   |WWW|
+   |WWW|
+   |WWW|
+#U3:
+   |YYY|
+   |YYY|
+   |YYY|
+    ---
+OOO|BBB|RRR|GGG
+BBB|RRR|GGG|OOO
+BBB|RRR|GGG|OOO
+    ---
+   |WWW|
+   |WWW|
+   |WWW|
+#U4:
+   |YYY|
+   |YYY|
+   |YYY|
+    ---
+BBB|RRR|GGG|OOO
+BBB|RRR|GGG|OOO
+BBB|RRR|GGG|OOO
+    ---
+   |WWW|
+   |WWW|
+   |WWW|
+#Uinv:
+   |YYY|
+   |YYY|
+   |YYY|
+    ---
+OOO|BBB|RRR|GGG
+BBB|RRR|GGG|OOO
+BBB|RRR|GGG|OOO
+    ---
+   |WWW|
+   |WWW|
+   |WWW|
+#Uinv + U:
+   |YYY|
+   |YYY|
+   |YYY|
+    ---
+BBB|RRR|GGG|OOO
+BBB|RRR|GGG|OOO
+BBB|RRR|GGG|OOO
+    ---
+   |WWW|
+   |WWW|
+   |WWW|
+#D1:
+   |YYY|
+   |YYY|
+   |YYY|
+    ---
+BBB|RRR|GGG|OOO
+BBB|RRR|GGG|OOO
+OOO|BBB|RRR|GGG
+    ---
+   |WWW|
+   |WWW|
+   |WWW|
+#D2:
+   |YYY|
+   |YYY|
+   |YYY|
+    ---
+BBB|RRR|GGG|OOO
+BBB|RRR|GGG|OOO
+GGG|OOO|BBB|RRR
+    ---
+   |WWW|
+   |WWW|
+   |WWW|
+#D3:
+   |YYY|
+   |YYY|
+   |YYY|
+    ---
+BBB|RRR|GGG|OOO
+BBB|RRR|GGG|OOO
+RRR|GGG|OOO|BBB
+    ---
+   |WWW|
+   |WWW|
+   |WWW|
+#D4:
+   |YYY|
+   |YYY|
+   |YYY|
+    ---
+BBB|RRR|GGG|OOO
+BBB|RRR|GGG|OOO
+BBB|RRR|GGG|OOO
+    ---
+   |WWW|
+   |WWW|
+   |WWW|
+#Dinv:
+   |YYY|
+   |YYY|
+   |YYY|
+    ---
+BBB|RRR|GGG|OOO
+BBB|RRR|GGG|OOO
+RRR|GGG|OOO|BBB
+    ---
+   |WWW|
+   |WWW|
+   |WWW|
+#Dinv + D:
+   |YYY|
+   |YYY|
+   |YYY|
+    ---
+BBB|RRR|GGG|OOO
+BBB|RRR|GGG|OOO
+BBB|RRR|GGG|OOO
+    ---
+   |WWW|
+   |WWW|
+   |WWW|
+moves:
+   |YOY|
+   |YYY|
+   |YRY|
+    ---
+BBB|RWR|GGG|OWO
+OBR|GRB|RGO|BOG
+BBB|RYR|GGG|OYO
+    ---
+   |WRW|
+   |WWW|
+   |WOW|
+states:
+(0, 43, 2, 3, 4, 5, 6, 25, 8, 9, 10, 11, 39, 13, 23, 15, 16, 17, 18, 46, 20, 30, 22, 14, 24, 7, 26, 27, 28, 29, 21, 31, 41, 33, 34, 35, 36, 52, 38, 12, 40, 32, 42, 1, 44, 45, 19, 47, 48, 49, 50, 51, 37, 53)
+permutations:
+edge permutation: [(8, 0), (4, 0), (10, 0), (6, 1), (3, 1), (11, 0), (1, 0), (9, 0), (0, 0), (5, 1), (2, 0), (7, 1)]
+corner permutation: [(3, 1), (5, 2), (1, 1), (7, 2), (0, 2), (6, 1), (2, 2), (4, 1)]
+to/from string:
+CdIhex0QuatLqn6coJ7H1DwFrBli4Pm52gzRpkjfEM983ybsvNKAOG
+True
+OYOYYRRWRYRWBBGYBWGOGOROBOBYGWBGGYRWBBBYOWGGGRYRRWWOWO
+True
+BUBUUFFDFURDLRRUFDRBRBFBLBLFUFFDDBDBUFDLLRULDLLLUBDRRR
+True
+515113363136224126454535252146244136222156444313366565
+True
+rigid rotations:
+0 [(1, 0), (2, 0), (0, 0), (3, 0), (4, 0), (5, 0), (6, 0), (7, 0), (8, 0), (9, 0), (10, 0), (11, 0)]
+1 [(8, 1), (1, 0), (2, 0), (3, 0), (4, 0), (5, 0), (6, 0), (0, 0), (7, 1), (9, 0), (10, 0), (11, 0)]
+2 [(0, 0), (1, 0), (2, 0), (3, 0), (4, 0), (5, 0), (6, 0), (7, 0), (10, 0), (8, 0), (9, 0), (11, 0)]
+3 [(0, 0), (1, 0), (6, 1), (3, 0), (4, 0), (5, 0), (10, 0), (7, 0), (8, 0), (9, 0), (2, 1), (11, 0)]
+4 [(0, 0), (2, 0), (3, 0), (1, 0), (4, 0), (5, 0), (6, 0), (7, 0), (8, 0), (9, 0), (10, 0), (11, 0)]
+5 [(0, 0), (9, 1), (2, 0), (3, 0), (4, 0), (5, 0), (1, 0), (7, 0), (8, 0), (6, 1), (10, 0), (11, 0)]
+6 [(0, 0), (1, 0), (2, 0), (3, 0), (4, 0), (5, 0), (6, 0), (7, 0), (8, 0), (11, 0), (9, 0), (10, 0)]
+7 [(0, 0), (1, 0), (2, 0), (5, 1), (4, 0), (11, 0), (6, 0), (7, 0), (8, 0), (9, 0), (10, 0), (3, 1)]
+8 [(2, 0), (1, 0), (3, 0), (0, 0), (4, 0), (5, 0), (6, 0), (7, 0), (8, 0), (9, 0), (10, 0), (11, 0)]
+9 [(0, 0), (1, 0), (10, 1), (3, 0), (4, 0), (2, 0), (6, 0), (7, 0), (8, 0), (9, 0), (5, 1), (11, 0)]
+10 [(0, 0), (1, 0), (2, 0), (3, 0), (4, 0), (5, 0), (6, 0), (7, 0), (11, 0), (9, 0), (8, 0), (10, 0)]
+11 [(4, 0), (1, 0), (2, 0), (3, 0), (8, 1), (5, 0), (6, 0), (7, 0), (0, 1), (9, 0), (10, 0), (11, 0)]
+12 [(1, 0), (3, 0), (2, 0), (0, 0), (4, 0), (5, 0), (6, 0), (7, 0), (8, 0), (9, 0), (10, 0), (11, 0)]
+13 [(0, 0), (1, 0), (2, 0), (11, 1), (3, 1), (5, 0), (6, 0), (7, 0), (8, 0), (9, 0), (10, 0), (4, 0)]
+14 [(0, 0), (1, 0), (2, 0), (3, 0), (4, 0), (5, 0), (6, 0), (7, 0), (11, 0), (8, 0), (10, 0), (9, 0)]
+15 [(0, 0), (7, 1), (2, 0), (3, 0), (4, 0), (5, 0), (6, 0), (9, 0), (8, 0), (1, 1), (10, 0), (11, 0)]
+16 [(0, 0), (1, 0), (2, 0), (3, 0), (4, 0), (5, 0), (7, 1), (9, 0), (8, 0), (6, 1), (10, 0), (11, 0)]
+17 [(0, 0), (1, 0), (2, 0), (3, 0), (8, 1), (5, 0), (6, 0), (4, 0), (7, 1), (9, 0), (10, 0), (11, 0)]
+18 [(0, 0), (1, 0), (2, 0), (3, 0), (5, 0), (11, 0), (6, 0), (7, 0), (8, 0), (9, 0), (10, 0), (4, 0)]
+19 [(0, 0), (1, 0), (2, 0), (3, 0), (4, 0), (6, 1), (10, 0), (7, 0), (8, 0), (9, 0), (5, 1), (11, 0)]
+20 [(0, 0), (1, 0), (2, 0), (5, 1), (3, 1), (4, 0), (6, 0), (7, 0), (8, 0), (9, 0), (10, 0), (11, 0)]
+21 [(4, 0), (1, 0), (2, 0), (3, 0), (7, 0), (5, 0), (6, 0), (0, 0), (8, 0), (9, 0), (10, 0), (11, 0)]
+22 [(0, 0), (7, 1), (2, 0), (3, 0), (4, 0), (5, 0), (1, 0), (6, 1), (8, 0), (9, 0), (10, 0), (11, 0)]
+23 [(0, 0), (1, 0), (6, 1), (3, 0), (4, 0), (2, 0), (5, 1), (7, 0), (8, 0), (9, 0), (10, 0), (11, 0)]
+0 [(2, 0), (0, 0), (1, 0), (3, 0), (4, 0), (5, 0), (6, 0), (7, 0)]
+1 [(0, 0), (5, 1), (2, 0), (3, 0), (1, 0), (4, 2), (6, 0), (7, 0)]
+2 [(0, 0), (1, 0), (2, 0), (3, 0), (4, 0), (6, 0), (7, 0), (5, 0)]
+3 [(0, 0), (1, 0), (3, 2), (6, 0), (4, 0), (5, 0), (2, 1), (7, 0)]
+4 [(0, 0), (3, 0), (1, 0), (2, 0), (4, 0), (5, 0), (6, 0), (7, 0)]
+5 [(0, 0), (1, 0), (6, 1), (3, 0), (4, 0), (2, 0), (5, 2), (7, 0)]
+6 [(0, 0), (1, 0), (2, 0), (3, 0), (6, 0), (5, 0), (7, 0), (4, 0)]
+7 [(7, 0), (1, 0), (2, 0), (0, 2), (4, 0), (5, 0), (6, 0), (3, 1)]
+8 [(3, 0), (1, 0), (0, 0), (2, 0), (4, 0), (5, 0), (6, 0), (7, 0)]
+9 [(0, 0), (1, 0), (2, 0), (7, 1), (4, 0), (5, 0), (3, 0), (6, 2)]
+10 [(0, 0), (1, 0), (2, 0), (3, 0), (5, 0), (7, 0), (6, 0), (4, 0)]
+11 [(1, 2), (4, 0), (2, 0), (3, 0), (0, 1), (5, 0), (6, 0), (7, 0)]
+12 [(3, 0), (0, 0), (2, 0), (1, 0), (4, 0), (5, 0), (6, 0), (7, 0)]
+13 [(4, 1), (1, 0), (2, 0), (3, 0), (7, 2), (5, 0), (6, 0), (0, 0)]
+14 [(0, 0), (1, 0), (2, 0), (3, 0), (5, 0), (6, 0), (4, 0), (7, 0)]
+15 [(0, 0), (2, 2), (5, 0), (3, 0), (4, 0), (1, 1), (6, 0), (7, 0)]
+16 [(0, 0), (6, 0), (2, 0), (3, 0), (4, 0), (1, 1), (5, 2), (7, 0)]
+17 [(5, 0), (1, 0), (2, 0), (3, 0), (0, 1), (4, 2), (6, 0), (7, 0)]
+18 [(0, 0), (1, 0), (2, 0), (4, 0), (7, 2), (5, 0), (6, 0), (3, 1)]
+19 [(0, 0), (1, 0), (7, 0), (3, 0), (4, 0), (5, 0), (2, 1), (6, 2)]
+20 [(4, 1), (1, 0), (2, 0), (0, 2), (3, 0), (5, 0), (6, 0), (7, 0)]
+21 [(1, 2), (5, 1), (2, 0), (3, 0), (4, 0), (0, 0), (6, 0), (7, 0)]
+22 [(0, 0), (2, 2), (6, 1), (3, 0), (4, 0), (5, 0), (1, 0), (7, 0)]
+23 [(0, 0), (1, 0), (3, 2), (7, 1), (4, 0), (5, 0), (6, 0), (2, 0)]
+#order of basic moves:
+[4, 4, 4, 4, 4, 4]
+L F: 105
+R U2 D' B D': 1260
+D' B D' U2 R: 84
