@@ -1,4 +1,4 @@
-# 3x3x3 Rubik Cube routines by dm (2020/03/18 - ...)
+# 3x3x3 Rubik's cube routines by dm (2020/03/18 - ...)
 #
 #
 # notation similar to pypi.org/project/rubik-solver
