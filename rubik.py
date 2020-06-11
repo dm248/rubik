@@ -49,7 +49,7 @@
 #
 
 
-# FIXME: refactor into helpers + class + init
+# FIXME: refactor pre-class helpers
 #        
 
 
@@ -277,10 +277,10 @@ class RubikCube():
       # neighbors: 0, 3, 6|18,21,24|45,48,51|44,41,38| -> rotate by 3 for CW
       self._cycleCells(3 * dir, (0, 3, 6, 18, 21, 24, 45, 48, 51, 44, 41, 38) )
 
-   def _moveLinv(self):   # L'
+   def _moveLinv(self):    # L'
        self._moveL(-1)
 
-   def _moveL2(self):
+   def _moveL2(self):      # L+L
        self._moveL(dir = 2)
 
    # right
@@ -290,10 +290,10 @@ class RubikCube():
       # neighbors: 53,50,47|26,23,20| 8, 5, 2|36,39,42| -> rotate by 3 for CW
       self._cycleCells(3 * dir, (53, 50, 47, 26, 23, 20, 8, 5, 2, 36, 39, 42) )
 
-   def _moveRinv(self):       # R'
+   def _moveRinv(self):    # R'
        self._moveR(dir = -1)
 
-   def _moveR2(self):
+   def _moveR2(self):      # R+R
        self._moveR(dir = 2)
 
    # front
@@ -303,10 +303,10 @@ class RubikCube():
       # neighbors:  6, 7, 8|27,30,33|47,46,45|17,14,11| -> rotate by 3 for CW
       self._cycleCells(3 * dir, (6, 7, 8, 27, 30, 33, 47, 46, 45, 17, 14, 11) )
 
-   def _moveFinv(self):      # F'
+   def _moveFinv(self):    # F'
        self._moveF(dir = -1)
 
-   def _moveF2(self):
+   def _moveF2(self):      # F+F
        self._moveF(dir = 2)
 
    # back
@@ -316,10 +316,10 @@ class RubikCube():
       # neighbors: 35,32,29| 2, 1, 0| 9,12,15|51,52,53| -> rotate by 3 for CW
       self._cycleCells(3 * dir, (35, 32, 29, 2, 1, 0, 9, 12, 15, 51, 52, 53) )
 
-   def _moveBinv(self):       # B'
+   def _moveBinv(self):    # B'
        self._moveB(dir = -1)
 
-   def _moveB2(self):
+   def _moveB2(self):      # B+B
        self._moveB(dir = 2)
 
    # up
@@ -329,10 +329,10 @@ class RubikCube():
       # neighbors: 11,10, 9|38,37,36|29,28,27|20,19,18| -> rotate by 3 for CW
       self._cycleCells(3 * dir, (11, 10, 9, 38, 37, 36, 29, 28, 27, 20, 19, 18) )
 
-   def _moveUinv(self):        # U'
+   def _moveUinv(self):    # U'
        self._moveU(dir = -1)
 
-   def _moveU2(self):
+   def _moveU2(self):      # U+U
        self._moveU(dir = 2)
 
    # down
@@ -343,11 +343,11 @@ class RubikCube():
       # neighbors: 15,16,17|24,25,26|33,34,35|42,43,44 -> rotate by 3 for CW
       self._cycleCells(3 * dir, (15, 16, 17, 24, 25, 26, 33, 34, 35, 42, 43, 44) )
 
-   def _moveDinv(self):        # D'
+   def _moveDinv(self):    # D'
        self._moveD(dir = -1)
 
-   def _moveD2(self):
-       self._moveD(dir = 2)    # D + D
+   def _moveD2(self):      # D+D
+       self._moveD(dir = 2)
 
    #
    # moves - sequence of basic moves (L->1 R->2 F->3 B->4 U->5 D->6)
@@ -375,6 +375,7 @@ class RubikCube():
             m(self)                   # apply it
 
    # return the inverse of moves (sequence/string) as a sequence
+   @staticmethod
    def invertMoves(mv):   
       sequence = mv   if not isinstance(mv, str)  else   RubikCube.string2moves(mv)
       return [ c if c > 10  else -c   for c in sequence[::-1] ]
@@ -384,6 +385,7 @@ class RubikCube():
       self.move(RubikCube.invertMoves(mv))
 
    # whether two moves (sequence or string) are equivalent
+   @staticmethod
    def areEqualMoves(mv1, mv2):
       cube = RubikCube()
       cube.move(mv1)
@@ -405,13 +407,16 @@ class RubikCube():
                     "L3": -1,  "R3": -2,  "F3": -3,  "B3": -4,  "U3": -5,  "D3": -6 }
                        )
 
+   @staticmethod
    def string2moves(s):
        return [ RubikCube.str2move_map[w.strip()] for w in s.split(" ") ]
        
+   @staticmethod
    def moves2string(seq):
        return " ".join( [ RubikCube.move2str_map[m] for m in seq ] )
 
    # return the inverse of moves (sequence/string) as a string
+   @staticmethod
    def invertMoves2String(mv):
       invseq = RubikCube.invertMoves(mv)
       return RubikCube.moves2string(invseq)
@@ -423,6 +428,7 @@ class RubikCube():
       return False   
 
    # convert a 27-character string to a cube state
+   @staticmethod
    def string2state(s): # FIXME: does not check twist/flip parity
       n = RubikCube.n
       if len(s) != n:
@@ -476,12 +482,14 @@ class RubikCube():
       return tuple( self.getState() )
 
    # convert moves (sequence/string) to a permutation
+   @staticmethod
    def moves2permutation(mv):
       cube = RubikCube()
       cube.move(mv)
       return cube.state2permutation()
 
    # convert moves (sequence/string) to a state - starting from the solved cube
+   @staticmethod
    def moves2state(mv):
       cube = RubikCube()
       cube.move(mv)
@@ -510,6 +518,7 @@ class RubikCube():
    #
 
    # find order of moves (sequence/string) - apply it until we get back original cube
+   @staticmethod
    def findOrder(mv):
       cube = RubikCube()
       # convert move to permutation
@@ -523,18 +532,49 @@ class RubikCube():
          cube.permute(perm)
          order += 1
 
-
-   # rigid rotations
+   # apply one of the 0-23 rigid rotations to a set of moves
    #
    # 24 configurations (e.g., 8 positions for a given corner * 3 rotations about that corner
    #                    or, 6 positions for a given face * 4 rotations about the normal to that face)
    #
    # -> choose 6x4, so index = (position of originally "L" face) * 4 + (CW rotation / 90 degrees)
+   rigid_rotation_move_str_map = []
 
-   # LFURBD relabelings for rotated configurations
-   # - the LFU normals form a righthanded system
-   # - normals for R,B,D are always opposite to L,F,U
-   rigid_rotation_mapped_moves = (
+   @staticmethod
+   def rotateMoveString(str, rot_idx):
+      if rot_idx == 0:
+         return str
+      remap = RubikCube.rigid_rotation_move_str_map[rot_idx];
+      return "".join( [ remap.get(c)   if remap.get(c) != None  else c   for c in str] )
+
+   # storage for all 12*11*10 = 1320 three-edge cycles - initialized after class code
+   # - [i][j][k] gives a move sequence that cycles ijk -> kij
+   edge_cycles = []
+   # storage for all 12 * 11 = 66*2 two-edge flips - initialized after class code
+   # - [i][j] gives a move sequence that flips the orientation of the i-th and j-th edges
+   edge_flips = []
+   # storage for all 8*7*6 = 336 three-corner cycles - initialized after class code
+   # - [i][j][k] gives a move sequence that cycles ijk -> kij
+   corner_cycles = []
+   # storage for all 8 * 7 = 28*2 two-corner twists - initialized after class code
+   # - [i][j] gives a move sequence with twist=1 for the i-th corner, twist=2 for the j-th one
+   corner_flips = []
+
+
+
+
+	
+####
+# initialization after class definition
+####
+
+
+# rigid rotation maps
+#
+# LFURBD relabelings for rotated configurations
+# - the LFU normals form a righthanded system
+# - normals for R,B,D are always opposite to L,F,U
+rigid_rotation_mapped_moves = (
                   "LFURBD", "LUBRDF", "LBDRFU", "LDFRUB",   #L in place, FUBD rotate
                   "BLUFRD", "BURFDL", "BRDFLU", "BDLFUR",   #B->L, then LURD rotate
                   "RBULFD", "RUFLDB", "RFDLBU", "RDBLUF",   #R->L, then BUFD rotate
@@ -543,141 +583,37 @@ class RubikCube():
                   "DFLUBR", "DLBURF", "DBRUFL", "DRFULB"    #D->L, then FLBR rotate
                 )
 
-   rigid_rotation_move_str_map = [{} for _ in range(24)]
-   for rot in range(24):
-      remap = rigid_rotation_mapped_moves
-      for i in range(6):
-         rigid_rotation_move_str_map[rot][remap[0][i]] = remap[rot][i]
-   rigid_rotation_move_str_map = tuple(rigid_rotation_move_str_map)
-
-   def rotateMoveString(str, rot_idx):
-      if rot_idx == 0:
-         return str
-      remap = RubikCube.rigid_rotation_move_str_map[rot_idx];
-      return "".join( [ remap.get(c)   if remap.get(c) != None  else c   for c in str] )
-
-
-   # elementary edge and corner moves
-   #
-   # based in part on "Group Theory and the Rubik's Cube" by Janet Chen
-   #   http://people.math.harvard.edu/~jjchen/docs/Group%20Theory%20and%20the%20Rubik's%20Cube.pdf
-   #
-   # Parity of (unoriented) edge permutations and (unoriented) corner permutations must match.
-   # (e.g., if precisely two edges are swapped (->odd), then at least two corners must be swapped as well.)
-   #
-   # Even edge permutations and even corner permutations form commuting subgroups (orientations may change).
-   # Edge orientations and corner orientations also form commuting subgroups.
-   #
-   # => one can reach a given state by adjusting edge permutations, then corner permutations, then edge orientations, 
-   #    and finally corner orientations
-   # 
-   
-   # cycle edges 0,1,2->2,0,1 (edges on same face)
-   #             0,1,4->4,0,1 and 0,1,6->6,0,1 (chain of edges on two neighboring faces - two parities)
-   #             0,1,5->5,0,1 (two neighbors, third starting from corner on same face)
-   #             0,1,7->7,0,1 (edges from same corner)
-   #             0,1,8->8,0,1 and 0,1,9->9,0,1 (two neighbors, third across one on same face - two parities)
-   #             0,1,10->10,0,1 and 0,1,11->11,0,1 (two neighbors + mirror of one across cube center - two parities)
-   #             0,2,8->8,0,2 (all three parallel)
-   #             0,2,9->9,0,2 (two across on same face, third orthogonal on opposite face)
-   #             0,5,9->9,0,5 and 0,6,11->11,0,6 (none are on same face - two parities)
-   edge_cycle_012_str = "R2 U' B2 R2 B2 U B' F' U2 B F U2 R2"  
-   edge_cycle_014_str = "U2 F D2 U2 B' U' B D2 U2 F' U'"
-   edge_cycle_016_str = "U2 L2 U' B2 F2 U F2 U' B2 U2 L' U2 F2 U2 L' U"
-   edge_cycle_015_str = "B R2 D2 B F L2 D2 R2 U' R2 F2 R2 U' F"
-   edge_cycle_017_str = "U2 F' D2 U2 B U' B' D2 U2 F U'"
-   edge_cycle_018_str = "F2 L' R U' B' U L R' F' U F'"
-   edge_cycle_019_str = "L2 R2 F2 L2 U R2 U' L2 F2 L' R' F' U2 F L' R'"
-   edge_cycle_01a_str = "B U2 B F2 L2 R2 B2 F2 L' F' D' F2 D L' R2 U"
-   edge_cycle_01b_str = "L2 R2 U R2 B2 R2 B2 R2 U' L R' F U2 F' L R'"
-   edge_cycle_028_str = "U2 F2 L2 F2 L2 U' L2 F2 L' R' F' D2 F' L' R U'"
-   edge_cycle_029_str = "R2 U' R2 U2 B2 R2 B2 U2 R2 U L R' F' U2 F L' R'"
-   edge_cycle_059_str = "R2 F R2 D2 R2 F2 L2 U2 R2 B R' B L2 R2 F' R'"
-   edge_cycle_06b_str = "R2 D R2 U R2 D' U F2 U' B' D L D2 L' B F2 R' U'"
-
-   # storage for all 12*11*10 = 1320 three-edge cycles - initialized after class code
-   # - [i][j][k] gives a move sequence that cycles ijk -> kij
-   edge_cycles = [ [ [None]*12 for __ in range(12) ] for _ in range(12) ]
-
-   # flip orientations of edges 0,1 (neighbors), 0,2 (across same face), 
-   #                            0,5 & 0,6 (across neighbor), and 0,10 (across cube)
-   edge_flip_01_str = "R U F R2 F' R' U F2 R2 U2 F2 U2 R2 F U2 F"
-   edge_flip_02_str = "U2 R2 D L2 F2 R2 U L2 B2 R' U' F U F2 R F U' F'"
-   edge_flip_05_str = "D2 F2 R2 U2 R2 F2 D' L2 D' B' L' D' B2 D B L'"
-   edge_flip_06_str = "U' B2 U' F2 D' L2 D F2 U2 B R' D' R2 D B R'"
-   edge_flip_0a_str = "U B2 L2 D' F2 L2 B2 U2 R2 U' L R' F R2 F L' R' U'"
-
-   # storage for all 12 * 11 = 66*2 two-edge flips - initialized after class code
-   # - [i][j] gives a move sequence that flips the orientation of the i-th and j-th edges
-   edge_flips = [ [None]*12  for _ in range(12) ]
-
-   # basic 3-corner cycles that generate even corner permutations
-   #
-   # cycle corners 0,1,2->2,1,0 (corners on same face) -> 8*3*6 = 144
-   #               0,1,6->6,0,1 (two on same edge, two across same face) ->8*3*6 = 144
-   #               0,2,5->5,0,2 (two across same face, another two across same face) -> 8*(3/3)*6 = 48
-   corner_cycle_012_str = "L' U R' D2 R U' R' D2 L R"
-   corner_cycle_015_str = "F R2 B L2 B' R2 B L2 F' L B' R B L' B' R'"
-   corner_cycle_025_str = "F2 L2 F' R2 U2 B D2 R2 B' F D' F' U2 F D' F' R2 F'"
-
-   # storage for all 8*7*6 = 336 three-corner cycles - initialized after class code
-   # - [i][j][k] gives a move sequence that cycles ijk -> kij
-   corner_cycles = [ [ [None]*8 for __ in range(8) ] for _ in range(8) ]
-
-   # basic 2-corner twists that generate corner orientations
-   #
-   # twist corners 0,1 (on same edge), 0,2 (across same face), 0,5 (across cube)
-   corner_twist_01_str = "D R D L' D' R' D R' F2 R B2 R' F2 R B2 L D2"
-   corner_twist_02_str = "U2 F D B2 D' F' D2 B2 D' R2 D' R2 U F2 U F2" 
-   corner_twist_06_str = "U B U' F2 U B' U' F2 D B2 D' F2 D B2 D' F2"
-
-   # storage for all 8 * 7 = 28*2 two-corner twists - initialized after class code
-   # - [i][j] gives a move sequence with twist=1 for the i-th corner, twist=2 for the j-th one
-   corner_twists = [ [None]*8  for _ in range(8) ]
-
-   ##
-   # static methods - converted only as last step so that we could use them inside class def above
-   ##
-   invertMoves        = staticmethod(invertMoves)
-   areEqualMoves      = staticmethod(areEqualMoves)
-   string2moves       = staticmethod(string2moves)
-   moves2string       = staticmethod(moves2string)
-   invertMoves2String = staticmethod(invertMoves2String)
-   string2state       = staticmethod(string2state)
-   moves2permutation  = staticmethod(moves2permutation)
-   moves2state        = staticmethod(moves2state)
-   findOrder          = staticmethod(findOrder)
-
-	
-####
-# initialization that did not fit inside class definition
-####
-
-
-# build all basic edge flips: neighbors       -> 12*4 = 48
-#                             across face     -> 12*2 = 24
-#                             across neighbor -> 12*4 = 48
-#                             across cube     -> 12*1 = 12
+rigid_rotation_move_str_map = [{} for _ in range(24)]
 for rot in range(24):
-   moveset = (RubikCube.edge_flip_01_str, 
-              RubikCube.edge_flip_02_str,
-              RubikCube.edge_flip_05_str, RubikCube.edge_flip_06_str, 
-              RubikCube.edge_flip_0a_str)
-   edge_flips = RubikCube.edge_flips
-   for s in moveset:
-      s = RubikCube.rotateMoveString(s, rot)
-      seq = RubikCube.string2moves(s)
-      cube = RubikCube()
-      cube.move(seq)
-      p = cube.getEdgePermutation()
-      lst = [ i   for i in range(12)   if p[i][1] != 0 ]
-      i,j = lst[0],lst[1]
-      if edge_flips[i][j] == None:
-         edge_flips[i][j] = seq
-         edge_flips[j][i] = seq
+   remap = rigid_rotation_mapped_moves
+   for i in range(6):
+      rigid_rotation_move_str_map[rot][remap[0][i]] = remap[rot][i]
+RubikCube.rigid_rotation_move_str_map = tuple(rigid_rotation_move_str_map)
 
 
-# build all basic edge cycles: all 3 on same face -> 12 * 2 * 6 = 144 
+
+# Construct edge cycles/flips and corner cycles/twists
+#
+#   BASIC FLIPS/TWISTS/CYCLES: given in string notation to let people follow those on a real cube
+#   FLIP/TWIST/PERM ARRAY ENTRIES: given as numeric move sequences
+#
+#
+# based in part on "Group Theory and the Rubik's Cube" by Janet Chen
+#   http://people.math.harvard.edu/~jjchen/docs/Group%20Theory%20and%20the%20Rubik's%20Cube.pdf
+#
+# Parity of (unoriented) edge permutations and (unoriented) corner permutations must match.
+# (e.g., if precisely two edges are swapped (->odd), then at least two corners must be swapped as well.)
+#
+# Even edge permutations and even corner permutations form commuting subgroups (orientations may change).
+# Edge orientations and corner orientations also form commuting subgroups.
+#
+# => one can reach a given state by adjusting edge permutations, then corner permutations, then edge orientations, 
+#    and finally corner orientations
+#
+
+
+
+# build all basic edge cycles: all 3 on same face -> 12 * 2 * 6 = 144
 #                              chain of 3 on neighboring faces -> 2 * (12 * 6) = 144
 #                              all 3 from same corner -> 8 * 6 = 48
 #                              2 neighbors, 3rd opposite to both from corner on same face -> 8 * 3 * 6 = 144
@@ -686,18 +622,43 @@ for rot in range(24):
 #                              3 parallel ones -> 12 * 6 = 72 
 #                              2 across on same face, 3rd orthogonal on opposite face -> 12 * 2 * 6 = 144
 #                              none are on same face -> 2 * (4 * 6) = 48
+#
+# cycle edges 0,1,2->2,0,1 (edges on same face)
+#             0,1,4->4,0,1 and 0,1,6->6,0,1 (chain of edges on two neighboring faces - two parities)
+#             0,1,5->5,0,1 (two neighbors, third starting from corner on same face)
+#             0,1,7->7,0,1 (edges from same corner)
+#             0,1,8->8,0,1 and 0,1,9->9,0,1 (two neighbors, third across one on same face - two parities)
+#             0,1,10->10,0,1 and 0,1,11->11,0,1 (two neighbors + mirror of one across cube center - two parities)
+#             0,2,8->8,0,2 (all three parallel)
+#             0,2,9->9,0,2 (two across on same face, third orthogonal on opposite face)
+#             0,5,9->9,0,5 and 0,6,11->11,0,6 (none are on same face - two parities)
+edge_cycle_012_str = "R2 U' B2 R2 B2 U B' F' U2 B F U2 R2"
+edge_cycle_014_str = "U2 F D2 U2 B' U' B D2 U2 F' U'"
+edge_cycle_016_str = "U2 L2 U' B2 F2 U F2 U' B2 U2 L' U2 F2 U2 L' U"
+edge_cycle_015_str = "B R2 D2 B F L2 D2 R2 U' R2 F2 R2 U' F"
+edge_cycle_017_str = "U2 F' D2 U2 B U' B' D2 U2 F U'"
+edge_cycle_018_str = "F2 L' R U' B' U L R' F' U F'"
+edge_cycle_019_str = "L2 R2 F2 L2 U R2 U' L2 F2 L' R' F' U2 F L' R'"
+edge_cycle_01a_str = "B U2 B F2 L2 R2 B2 F2 L' F' D' F2 D L' R2 U"
+edge_cycle_01b_str = "L2 R2 U R2 B2 R2 B2 R2 U' L R' F U2 F' L R'"
+edge_cycle_028_str = "U2 F2 L2 F2 L2 U' L2 F2 L' R' F' D2 F' L' R U'"
+edge_cycle_029_str = "R2 U' R2 U2 B2 R2 B2 U2 R2 U L R' F' U2 F L' R'"
+edge_cycle_059_str = "R2 F R2 D2 R2 F2 L2 U2 R2 B R' B L2 R2 F' R'"
+edge_cycle_06b_str = "R2 D R2 U R2 D' U F2 U' B' D L D2 L' B F2 R' U'"
+
+edge_cycles = [ [ [None]*12 for __ in range(12) ] for _ in range(12) ]
+
 for rot in range(24):
-   moveset = (RubikCube.edge_cycle_012_str,
-              RubikCube.edge_cycle_014_str, RubikCube.edge_cycle_016_str,
-              RubikCube.edge_cycle_015_str,
-              RubikCube.edge_cycle_017_str, 
-              RubikCube.edge_cycle_018_str, RubikCube.edge_cycle_019_str,
-              RubikCube.edge_cycle_01a_str, RubikCube.edge_cycle_01b_str,
-              RubikCube.edge_cycle_028_str,
-              RubikCube.edge_cycle_029_str,
-              RubikCube.edge_cycle_059_str, RubikCube.edge_cycle_06b_str 
+   moveset = (edge_cycle_012_str,
+              edge_cycle_014_str, edge_cycle_016_str,
+              edge_cycle_015_str,
+              edge_cycle_017_str,
+              edge_cycle_018_str, edge_cycle_019_str,
+              edge_cycle_01a_str, edge_cycle_01b_str,
+              edge_cycle_028_str,
+              edge_cycle_029_str,
+              edge_cycle_059_str, edge_cycle_06b_str
              )
-   edge_cycles = RubikCube.edge_cycles
    for s in moveset:
       s = RubikCube.rotateMoveString(s, rot)
       seq = RubikCube.string2moves(s)
@@ -706,10 +667,9 @@ for rot in range(24):
       cube.move(seq)
       p = cube.getEdgePermutation()
       lst = [ i for i in range(12)   if p[i][0] != i ]  # reconstruct cycle ijk->jki
-      lst[1] = p[lst[2]][0]  
+      lst[1] = p[lst[2]][0]
       lst[0] = p[lst[1]][0]
-      #print(rot, p, lst)
-      i,j,k = lst[0],lst[1],lst[2]        
+      i,j,k = lst[0],lst[1],lst[2]
       if edge_cycles[i][j][k] == None:   # store cycle and inverse
          edge_cycles[i][j][k] = seq
          edge_cycles[j][k][i] = seq
@@ -718,35 +678,64 @@ for rot in range(24):
          edge_cycles[j][i][k] = seqinv
          edge_cycles[i][k][j] = seqinv
 
+RubikCube.edge_cycles = edge_cycles
 
-# build all basic corner twists: neighbor twists -> 8*3 = 24
-#                                same-face diag twists -> 8*3 = 24
-#                                opposite corner twists -> 8*1 = 8
+
+
+# build all basic edge flips: neighbors       -> 12*4 = 48
+#                             across face     -> 12*2 = 24
+#                             across neighbor -> 12*4 = 48
+#                             across cube     -> 12*1 = 12
+#
+# flip orientations of edges 0,1 (neighbors), 0,2 (across same face), 
+#                            0,5 & 0,6 (across neighbor), and 0,10 (across cube)
+edge_flip_01_str = "R U F R2 F' R' U F2 R2 U2 F2 U2 R2 F U2 F"
+edge_flip_02_str = "U2 R2 D L2 F2 R2 U L2 B2 R' U' F U F2 R F U' F'"
+edge_flip_05_str = "D2 F2 R2 U2 R2 F2 D' L2 D' B' L' D' B2 D B L'"
+edge_flip_06_str = "U' B2 U' F2 D' L2 D F2 U2 B R' D' R2 D B R'"
+edge_flip_0a_str = "U B2 L2 D' F2 L2 B2 U2 R2 U' L R' F R2 F L' R' U'"
+
+edge_flips = [ [None]*12  for _ in range(12) ]
+
 for rot in range(24):
-   moveset = (RubikCube.corner_twist_01_str, RubikCube.corner_twist_02_str, RubikCube.corner_twist_06_str)
-   corner_twists = RubikCube.corner_twists
+   moveset = (edge_flip_01_str, 
+              edge_flip_02_str,
+              edge_flip_05_str, edge_flip_06_str, 
+              edge_flip_0a_str)
    for s in moveset:
       s = RubikCube.rotateMoveString(s, rot)
       seq = RubikCube.string2moves(s)
-      seqinv = RubikCube.invertMoves(seq) #inverse cycle
       cube = RubikCube()
       cube.move(seq)
-      p = cube.getCornerPermutation()
-      lst = [ i   for i in range(8)   if p[i][1] != 0 ]
+      p = cube.getEdgePermutation()
+      lst = [ i   for i in range(12)   if p[i][1] != 0 ]
+      #print(rot, p, lst)
       i,j = lst[0],lst[1]
-      if p[i][1] != 1:
-         seq, seqinv = seqinv, seq
-      if corner_twists[i][j] == None:
-         corner_twists[i][j] = seq
-         corner_twists[j][i] = seqinv
+      if edge_flips[i][j] == None:
+         edge_flips[i][j] = seq
+         edge_flips[j][i] = seq
+
+RubikCube.edge_flips = edge_flips
+
 
 
 # build all basic corner cycles: all 3 on same face -> 8*3*6 = 144
 #                                two on same edge, two across same face -> 8*3*6 = 144
 #                                two across same face, another two across another face -> 8*(3/3)*6 = 48
+#
+# basic 3-corner cycles that generate even corner permutations
+#
+# cycle corners 0,1,2->2,1,0 (corners on same face) -> 8*3*6 = 144
+#               0,1,6->6,0,1 (two on same edge, two across same face) ->8*3*6 = 144
+#               0,2,5->5,0,2 (two across same face, another two across same face) -> 8*(3/3)*6 = 48
+corner_cycle_012_str = "L' U R' D2 R U' R' D2 L R"
+corner_cycle_015_str = "F R2 B L2 B' R2 B L2 F' L B' R B L' B' R'"
+corner_cycle_025_str = "F2 L2 F' R2 U2 B D2 R2 B' F D' F' U2 F D' F' R2 F'"
+
+corner_cycles = [ [ [None]*8 for __ in range(8) ] for _ in range(8) ]
+
 for rot in range(24):
-   moveset = (RubikCube.corner_cycle_012_str, RubikCube.corner_cycle_015_str, RubikCube.corner_cycle_025_str)
-   corner_cycles = RubikCube.corner_cycles
+   moveset = (corner_cycle_012_str, corner_cycle_015_str, corner_cycle_025_str)
    for s in moveset:
       s = RubikCube.rotateMoveString(s, rot)
       seq = RubikCube.string2moves(s)
@@ -766,6 +755,44 @@ for rot in range(24):
          corner_cycles[k][j][i] = seqinv
          corner_cycles[j][i][k] = seqinv
          corner_cycles[i][k][j] = seqinv
+
+RubikCube.corner_cycles = corner_cycles
+
+
+
+# build all basic corner twists: neighbor twists -> 8*3 = 24
+#                                same-face diag twists -> 8*3 = 24
+#                                opposite corner twists -> 8*1 = 8
+#
+# basic 2-corner twists that generate corner orientations
+#
+# twist corners 0,1 (on same edge), 0,2 (across same face), 0,5 (across cube)
+corner_twist_01_str = "D R D L' D' R' D R' F2 R B2 R' F2 R B2 L D2"
+corner_twist_02_str = "U2 F D B2 D' F' D2 B2 D' R2 D' R2 U F2 U F2" 
+corner_twist_06_str = "U B U' F2 U B' U' F2 D B2 D' F2 D B2 D' F2"
+
+corner_twists = [ [None]*8  for _ in range(8) ]
+
+for rot in range(24):
+   moveset = (corner_twist_01_str, corner_twist_02_str, corner_twist_06_str)
+   for s in moveset:
+      s = RubikCube.rotateMoveString(s, rot)
+      seq = RubikCube.string2moves(s)
+      seqinv = RubikCube.invertMoves(seq) #inverse cycle
+      cube = RubikCube()
+      cube.move(seq)
+      p = cube.getCornerPermutation()
+      lst = [ i   for i in range(8)   if p[i][1] != 0 ]
+      i,j = lst[0],lst[1]
+      if p[i][1] != 1:
+         seq, seqinv = seqinv, seq
+      if corner_twists[i][j] == None:
+         corner_twists[i][j] = seq
+         corner_twists[j][i] = seqinv
+
+RubikCube.corner_twists = corner_twists
+
+
 
 
 
@@ -860,13 +887,17 @@ def TESTsuite(format = RubikCube.FORMAT_DEFAULT):
 
    # rigid rotations
    print("rigid rotations:")
+   seq = RubikCube.edge_cycles[0][1][2]
+   mv = RubikCube.moves2string(seq)
    for rot in range(24):
       cube.reset()
-      cube.move(RubikCube.rotateMoveString(RubikCube.edge_cycle_012_str, rot))
+      cube.move(RubikCube.rotateMoveString(mv, rot))
       print(rot, cube.getEdgePermutation())
+   seq = RubikCube.corner_cycles[0][1][2]
+   mv = RubikCube.moves2string(seq)
    for rot in range(24):
       cube.reset()
-      cube.move(RubikCube.rotateMoveString(RubikCube.corner_cycle_012_str, rot))
+      cube.move(RubikCube.rotateMoveString(mv, rot))
       print(rot, cube.getCornerPermutation())
 
    # (group) order of moves
@@ -956,6 +987,7 @@ def main():
 
 if __name__ == "__main__":
    main()
+
 
 ######
 # END
