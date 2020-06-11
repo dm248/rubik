@@ -796,7 +796,7 @@ def TESTsuite(format = RubikCube.FORMAT_DEFAULT):
          print("#%s%d:" % (move, i) )
          move_fn()
          cube.print(facesonly)
-         print(cube.isReset())
+         assert cube.isReset() == (i == 4), "isReset() off"
       # inverse move + move
       print("#%sinv:" % move)
       move_fn(-1)
@@ -809,15 +809,17 @@ def TESTsuite(format = RubikCube.FORMAT_DEFAULT):
    print("moves:")
    cube.move([1, 2, 3, 4, 5, 6, -1, -2, -3, -4, -5, -6])
    cube.print(facesonly)
-   print(cube.isReset())
+   assert not cube.isReset(), "LRFBUDL'R'F'B'U'D' off"
 
    # states
    print("states:")
    state = cube.getState()
    cube.reset()
-   print(state, cube.isInState(state))
+   print(state)
+   assert state == (0, 43, 2, 3, 4, 5, 6, 25, 8, 9, 10, 11, 39, 13, 23, 15, 16, 17, 18, 46, 20, 30, 22, 14, 24, 7, 26, 27, 28, 29, 21, 31, 41, 33, 34, 35, 36, 52, 38, 12, 40, 32, 42, 1, 44, 45, 19, 47, 48, 49, 50, 51, 37, 53), "getState() off"
+   assert not cube.isInState(state), "isInState() off"
    cube.move([1, 2, 3, 4, 5, 6, -1, -2, -3, -4, -5, -6])
-   print(cube.isInState(state))
+   assert cube.isInState(state), "move->state off"
 
    # permutations
    print("permutations:")
@@ -825,7 +827,7 @@ def TESTsuite(format = RubikCube.FORMAT_DEFAULT):
    perm = cube.state2permutation()
    cube.reset()
    cube.permute(perm)
-   print(cube.isInState(state))
+   assert cube.isInState(state), "permute() off"
    cube.move([1, 2, 1, 2, 1, 2])
    print("edge permutation:", cube.getEdgePermutation())
    print("corner permutation:", cube.getCornerPermutation())
@@ -837,18 +839,22 @@ def TESTsuite(format = RubikCube.FORMAT_DEFAULT):
    for i in range(3):  cube.move([ 4, 5, 6])
    s = cube.toString(RubikCube.FORMAT_DEFAULT)
    print(s)
+   assert s == "CdIhex0QuatLqn6coJ7H1DwFrBli4Pm52gzRpkjfEM983ybsvNKAOG", "state->string off"
    state = RubikCube.string2state(s)
    print(cube.isInState(state))
    s = cube.toString(RubikCube.FORMAT_FACESONLY)
    print(s)
+   assert s == "OYOYYRRWRYRWBBGYBWGOGOROBOBYGWBGGYRWBBBYOWGGGRYRRWWOWO", "state->string FACESONLY off"
    state = RubikCube.string2state(s)
    print(cube.isInState(state))
    s = cube.toString(RubikCube.FORMAT_KOCIEMBA)
    print(s)
+   assert s == "BUBUUFFDFURDLRRUFDRBRBFBLBLFUFFDDBDBUFDLLRULDLLLUBDRRR", "state->string KOCIEMBA off"
    state = RubikCube.string2state(s)
    print(cube.isInState(state))
    s = cube.toString(RubikCube.FORMAT_RUBIKSCUBESOLVER)
    print(s)
+   assert s == "515113363136224126454535252146244136222156444313366565", "state->string RUBIKCUBESOLVER off"
    state = RubikCube.string2state(s)
    print(cube.isInState(state))
 
@@ -872,9 +878,12 @@ def TESTsuite(format = RubikCube.FORMAT_DEFAULT):
    seq2_str = "D' B D' U2 R"
    seq1 = RubikCube.string2moves(seq1_str)
    seq2 = RubikCube.string2moves(seq2_str)
-   print(seq1_str + ":", RubikCube.findOrder(seq1))
-   print(seq2_str + ":", RubikCube.findOrder(seq2))
-
+   order1 = RubikCube.findOrder(seq1)
+   order2 = RubikCube.findOrder(seq2)
+   print(seq1_str + ":", order1)
+   print(seq2_str + ":", order2)
+   assert order1 == 1260, "seq1 order off"
+   assert order2 ==   84, "seq2 order off"
 
 
 # test flips/twists
@@ -895,6 +904,7 @@ def TEST_tables2(tbl, edge = True):
          if bad:
             print((i,j), p, s)
    print("count(2):", cnt)
+   return cnt
 
 
 # test cycles
@@ -915,6 +925,7 @@ def TEST_tables3(tbl, edge = True):
             if bad:
                print((i,j,k), p, s)
    print("count(3):", cnt)
+   return cnt
 
 
 def TEST_tables(tbl, edge = True):
@@ -923,18 +934,18 @@ def TEST_tables(tbl, edge = True):
   while isinstance(t, list):
      d, t = d + 1, t[0]
   if d == 2:   # flip/twist
-     TEST_tables2(tbl, edge)
+     return TEST_tables2(tbl, edge)
   elif d == 3: # cycle
-     TEST_tables3(tbl, edge)
+     return TEST_tables3(tbl, edge)
   
 
 
 def main():
    print("## verify tables")
-   TEST_tables(RubikCube.edge_cycles, True)
-   TEST_tables(RubikCube.edge_flips, True)
-   TEST_tables(RubikCube.corner_cycles, False)
-   TEST_tables(RubikCube.corner_twists, False)
+   assert TEST_tables(RubikCube.edge_cycles, True)    == 1320, "egde cycles off"
+   assert TEST_tables(RubikCube.edge_flips, True)     ==  132, "edge flips off"
+   assert TEST_tables(RubikCube.corner_cycles, False) ==  336, "corner cycles off"
+   assert TEST_tables(RubikCube.corner_twists, False) ==   56, "corner twists off"
 
    print("##TEST SUITE with detailed facelets")
    TESTsuite(False)
