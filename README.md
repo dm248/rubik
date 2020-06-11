@@ -6,4 +6,4 @@ and generating or inferring edge flips/permutations and corner twists/permutatio
 The last group were especially handy for solving Loo-Key at [AngstromCTF 2020](https://2020.angstromctf.com/).
 
 There is no cube solver code included, for that use Kociemba's
-[two-phase solver](https://github.com/hkociemba/RubiksCube-TwophaseSolver).
+[two-phase solver](https://github.com/hkociemba/RubiksCube-TwophaseSolver) (its local server form is super convenient).
